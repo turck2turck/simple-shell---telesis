@@ -11,7 +11,7 @@ umask 137
 # Purpose: Execute passed in SQL
 # 
 ###########################################################################################
-source /home/ubuntu/scripts/init.cfg
+source /home/ubuntu/scripts/data-team/init.cfg
 
 #-----------------------------------------------
 #  Main:
@@ -31,28 +31,28 @@ ALTER TABLE loading.akeneo ADD COLUMN id integer NOT NULL DEFAULT nextval('produ
 EOF
 
 ## Clean up the akeneo input file.
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_akeneo.sql >> ${LOGDIR}/upsert_product.out 2> ${ELOGDIR}/upsert_product.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_akeneo.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the update_akeneo.sql command."
+      echo "Error with the upd_akeneo.sql command."
       exit 3
    fi
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_akeneo_err.sql >> ${LOGDIR}/upsert_product.out 2> ${ELOGDIR}/upsert_product.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_akeneo_err.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the update_akeneo.sql command."
+      echo "Error with the ins_akeneo.sql command."
       exit 3
    fi
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product.sql >> ${LOGDIR}/upsert_product.out 2> ${ELOGDIR}/upsert_product.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the update_akeneo.sql command."
+      echo "Error with the ins_product.sql command."
       exit 3
    fi
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_product.sh >> ${LOGDIR}/upsert_product.out 2> ${ELOGDIR}/upsert_product.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_product.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the update_akeneo.sql command."
+      echo "Error with the upd_product.sql command."
       exit 3
    fi
 
