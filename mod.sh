@@ -37,6 +37,9 @@ RUN_DATE=`date`
    awk 'BEGIN{FS=OFS="\""} {gsub(/\,/,";",$60)} 1' /tmp/0.csv > /tmp/1.csv
    awk 'BEGIN{FS=OFS="\""} {gsub(/\,/,";",$62)} 1' /tmp/1.csv > /tmp/2.csv
    awk 'BEGIN{FS=OFS="\""} {gsub(/\,/,";",$64)} 1' /tmp/2.csv > /tmp/3.csv
-   sed -i 's/\"//g' /tmp/3.csv
-   sed -i 's// /g' /tmp/3.csv
-   mv /tmp/3.csv ${IN_DIR}/clean_products.csv
+   awk 'BEGIN{FS=OFS="\""} {gsub(/\,/,";",$66)} 1' /tmp/3.csv > /tmp/4.csv
+   awk 'BEGIN{FS=OFS="\""} {gsub(/\,/,";",$68)} 1' /tmp/4.csv > /tmp/5.csv
+   awk 'BEGIN{FS=OFS="\""} {gsub(/\,/,";",$70)} 1' /tmp/5.csv > /tmp/4.csv
+   sed -i 's/\"//g' /tmp/4.csv
+   sed -i 's// /g' /tmp/4.csv
+   mv /tmp/4.csv ${IN_DIR}/clean_products.csv
