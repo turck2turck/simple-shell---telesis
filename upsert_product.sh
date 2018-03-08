@@ -12,88 +12,194 @@ umask 137
 # 
 ###########################################################################################
 source /home/ubuntu/scripts/data-team/init.cfg
+export PGM_NAME=upsert_product
 
-#-----------------------------------------------
-#  Main:
-#-----------------------------------------------
 
-echo "Insert and Update public.product on ${DTS} " > ${LOGDIR}/upsert_product.out
-echo "Insert and Update ERRORS for public.product on ${DTS} " > ${ELOGDIR}/upsert_product.err
-echo "HOST is: ${HOST}" >> ${LOGDIR}/upsert_product.out
-echo "USER is: ${USER}" >> ${LOGDIR}/upsert_product.out
-echo "Database is ${DATABASE}" >> ${LOGDIR}/upsert_product.out
-echo "Passord is ${PGPASSWORD}" >> ${LOGDIR}/upsert_product.out
+if [[ -s ${HOME}/.pwa ]]; then
+   . ${HOME}/.pwa
+else
+   echo ""
+   echo ""
+   echo "ERROR: password file ${HOME}/.pwa is empty or does not exist"
+   echo "       processing terminating now."
+   echo ""
+   echo ""
+   exit 99
+fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
-ALTER TABLE loading.akeneo ADD COLUMN product_hash character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN mfg_id integer;
-ALTER TABLE loading.akeneo ADD COLUMN id integer NOT NULL DEFAULT nextval('product_id_seq'::regclass);
-EOF
+#####################################################################################
+### Work with loading.akeneo
+#####################################################################################
+echo "Executing upsert_product.sh on ${DATE} " > ${LOGDIR}/${PGM_NAME}.out
+echo "Executing upsert_product.sh on ${DATE} " > ${ELOGDIR}/${PGM_NAME}.err
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_akeneo.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
+echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the upd_akeneo.sql command."
+  if [[ ${es} -ne 0 ]]; then
+      echo "Error with the tru_akeneo.sql command."
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_akeneo_err.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
+echo " \COPY loading.akeneo FROM '${DATADIR}/products.csv' WITH DELIMITER AS ',' CSV HEADER NULL as ''" > ${SQLDIR}/ins_akeneo.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/ins_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the ins_akeneo.sql command."
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_product.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
+echo "SELECT count(*) from loading.akeneo " > ${SQLDIR}/cnt_akeneo.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/cnt_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_product_product.sql command."
+      echo "Error with the cnt_akeneo.sql command."
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_accessory.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
+ALTER TABLE loading.akeneo ADD COLUMN product_hash character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN mfg_id integer;
+ALTER TABLE loading.akeneo ADD COLUMN id integer NOT NULL DEFAULT nextval('product_id_seq'::regclass);
+ALTER TABLE loading.akeneo ADD COLUMN atero_cat_id integer;
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash1 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash2 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash3 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash4 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash5 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash6 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash7 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash8 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash9 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN variant_hash10 character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN post_msrp numeric(12,2);
+ALTER TABLE loading.akeneo ADD COLUMN post_depth integer;
+ALTER TABLE loading.akeneo ADD COLUMN post_shipping_weight numeric(10,3);
+EOF
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the upd_akeneo.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_akeneo_err.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+  if [[ ${es} -ne 0 ]]; then
+     echo "Error with the ins_akeneo.sql command."
+     exit 3
+   fi
+
+### Products and Accessories
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the ins_product_${TABLE_NAME}.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_accessory.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the ins_product_accessory.sql command."
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_option.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_accessory_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_product_option.sql command."
+      echo "Error with the ins_product_accessory.sql command."
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_product.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the upd_product.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/product_attachment.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the product_attachemant.sql command."
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/product_association.sql >> ${LOGDIR}/upsert_product.out 2>> ${ELOGDIR}/upsert_product.err
+## Options
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_association.sql command."
+      echo "Error with the ins_option_product.sql command."
       exit 3
    fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_option_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the product_option_assoc.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the product_attachemant.sql command."
+      exit 3
+   fi
+
+## Variants
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the ins_variant.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the ins_variant_product.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_variant_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the product_variant_assoc.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the product_attachemant.sql command."
+      exit 3
+   fi
+
+## Process soft deletes
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_soft_deletes.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the product_attachemant.sql command."
+      exit 3
+   fi
+
 
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
 ALTER TABLE loading.akeneo DROP COLUMN product_hash ;
 ALTER TABLE loading.akeneo DROP COLUMN mfg_id ;
 ALTER TABLE loading.akeneo DROP COLUMN id ;
+ALTER TABLE loading.akeneo DROP COLUMN atero_cat_id ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash1 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash2 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash3 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash4 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash5 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash6 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash7 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash8 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash9 ;
+ALTER TABLE loading.akeneo DROP COLUMN variant_hash10 ;
+ALTER TABLE loading.akeneo DROP COLUMN post_msrp ;
+ALTER TABLE loading.akeneo DROP COLUMN post_depth ;
+ALTER TABLE loading.akeneo DROP COLUMN post_shipping_weight ;
 EOF
 
 
-
 exit 0
-
-
