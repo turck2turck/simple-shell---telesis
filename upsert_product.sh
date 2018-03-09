@@ -30,8 +30,8 @@ fi
 #####################################################################################
 ### Work with loading.akeneo
 #####################################################################################
-echo "Executing upsert_product.sh on ${DATE} " > ${LOGDIR}/${PGM_NAME}.out
-echo "Executing upsert_product.sh on ${DATE} " > ${ELOGDIR}/${PGM_NAME}.err
+echo "Executing upsert_product.sh on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
+echo "Executing upsert_product.sh on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
 echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
@@ -173,12 +173,12 @@ es=${?}
    fi
 
 ## Process soft deletes
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_soft_deletes.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_attachemant.sql command."
-      exit 3
-   fi
+#psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_soft_deletes.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+#es=${?}
+#   if [[ ${es} -ne 0 ]]; then
+#      echo "Error with the product_attachemant.sql command."
+#      exit 3
+#   fi
 
 
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF

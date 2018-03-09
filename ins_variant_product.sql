@@ -7,7 +7,7 @@ SET cat_sub_assoc_id=EXCLUDED.cat_sub_assoc_id,name=EXCLUDED.name,depth=EXCLUDED
 
 create temporary table tmp_hash AS (select p.id , p.variant_group from loading.akeneo a, public.product p where a.groups = p.variant_group and a.variant_base_prod = 1); 
 
-INSERT INTO public.variant_product (product_id,product_model_number,product_hash,name,upc,depth,height,width,diameter,shipping_weight,shipping_weight,unit_of_measure, uom_measurement,tax_code,freight_class,freight_code,description,msrp,map,utility_info,sku,product_family,lead_time,created_at,created_by)
+INSERT INTO public.variant_product (product_id,product_model_number,product_hash,name,upc,depth,height,width,diameter,shipping_weight,unit_of_measure, uom_measurement,tax_code,freight_class,freight_code,description,msrp,map,utility_info,sku,product_family,lead_time,created_at,created_by)
 SELECT h.id,a.model_no,a.product_hash,a.name,NULL,a.post_depth,a.height,a.width,NULL,a.post_shipping_weight,a.selling_unit,a.uom_measurement,a.avalara_tax_code,a.freight_class,a.avalara_freight_code,a.key_features,a.post_msrp,NULL,a.key_utility_information,a.sku,UPPER(a.product_family),a.lead_time,current_timestamp,1
 FROM loading.akeneo a, tmp_hash h
 WHERE a.item_type = 'item_type_variant' and a.groups = h.variant_group and a.enabled='1'

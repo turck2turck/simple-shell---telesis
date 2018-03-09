@@ -17,12 +17,11 @@ UPDATE loading.akeneo SET variant_hash10 = md5(ROW(variant_axis_10, variant_axis
 
 UPDATE loading.akeneo SET atero_cat_id = a.id
 FROM public.cat_sub_assoc a, public.category c, public.sub_category s
-WHERE atero_cat1 = c.category_name
-  AND atero_cat2 = s.sub_category_name
+WHERE atero_cat2 = s.sub_category_name
   AND a.category_id = c.id
   AND a.sub_category_id = s.id;
 
 UPDATE loading.akeneo SET post_msrp = price_usd/price_by_qty WHERE enabled= '1';
 UPDATE loading.akeneo SET post_shipping_weight = shipping_weight/per_case WHERE enabled= '1';
-UPDATE loading.akeneo SET post_depth = length/per_case WHERE uom_measuerment = '0' AND enabled = '1';
-UPDATE loading.akeneo SET post_depth = depth WHERE enabled= '1';
+UPDATE loading.akeneo SET post_depth = length/per_case WHERE uom_measurement = '0' AND enabled = '1';
+UPDATE loading.akeneo SET post_depth = length WHERE enabled= '1';
