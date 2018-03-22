@@ -1,0 +1,88 @@
+Database: Aterodb
+
+Scritps:
+set_env.sh - Script to set up DEV or STG environment. Pass in DEV or STG.
+init.cfg - Initialization parameters.
+init_dev.cfg - Initialization parameters for development environment.
+init_stg.cfg - Initialization parameters for stage environment.
+ins_application_user.sql - Populates the public.application_user table.
+ins_category.sql - Populates the public.category table.
+ins_sub_category.sql - Populates the sub_category table.
+ins_cat_sub_assoc.sql - Populates the public.cat_sub_assoc table.
+
+load_manufacturer_address.sh
+upsert_manufacturer.sh
+   ins_manufacturer.sql - Populates the public.manufacture table.
+   upd_manufacturer_address.sql
+upsert_address.sh
+   ins_address.sql - Populates the public.address table.
+
+upsert_product.sh
+   tru_akeneo.sql
+   upd_akeneo.sql
+   ins_akeneo_err.sql
+   ins_product_product.sql
+   ins_product_accessory.sql
+   ins_product_accessory_assoc.sql
+   ins_product_attachment.sql
+   ins_option_product.sql
+   ins_product_option_assoc.sql
+   ins_option_product_attachment.sql
+   ins_variant.sql
+   ins_variant_product.sql
+   ins_product_variant_assoc.sql
+   ins_variant_product_attachment.sql
+   upd_soft_deletes.sql
+
+run_sql.sh - script to run any SQL 
+
+
+Notes:
+To run the process start to finish: 
+$ ./set_env.sh <DEV> <STG>
+$ ./run_sql.sh ins_application_user.sql
+$ ./run_sql.sh ins_category.sql
+$ ./run_sql.sh ins_sub_category.sql
+$ ./run_sql.sh ins_cat_sub_assoc.sql
+cp manufacture address excel file to ${DATA_DIR} (/home/ubuntu/export/atero/). Note - the command is run 
+from a windows CMD prompt.
+epn_bap_key_pair.ppk C:\Users\jturck\Desktop\AteroDB\MFR_address_4.csv ubuntu@ec2-54-210-208-30.compute-1.amazonaws.com:/home/ubuntu/export/atero/
+$ ./load_manufacturer_address.sh
+$ ./upsert_manufacturer.sh
+$ ./upsert_address.sh
+To validate:
+select * from public.application_user
+select * from public.category;
+select * from public.sub_category;
+select * from public.cat_sub_assoc;
+select * from public.manufacturer;
+select * from public.address;
+
+copy in the desired products.csv file to ${DATA_DIR}
+$ ./upsert_product.sh
+
+There are 4 types of products that come via the Akeno products.csv file. This is the normal Akeneo export 
+that is loading to the loading.akeneo table as one of the first steps in upsert_product.sh scrip. The data 
+in column 'item_type' will be item_type_product, item_type_accessory, item_type_option or item_type_variant. 
+
+1. Product - Normal product.
+
+2. Accessory - Treated similar to a product, 
+
+3. Option - Is attached to a product. An option is something that must be built with the product at the factory. 
+This is what differentiates it from an Accessory which can be purchased seperately. The column epn_options in 
+Akeneo of the parent product holds the child skus of the options. The option products will be listed as 
+item_type = 'item_type_option'. 
+
+4. Variants - Is a varation of the product. The data comes from the manufacturer and the data team determines 
+that the individual products are variants of each other. There are 5 tables associated to Variants. 
+They are:
+   --loading.akeneo
+   --public.variant			hold the actual variant and the value as in Finish and Cherry
+   --public.product			holds the base product, indicated with a 1 in loading.akeneo.base column
+   --public.variant_product		holds all the variant records including the base product
+   --public.product_variant_assoc	hold the associated records of varaints to the product
+The akeneo.group and akeneo.base name are both used to group the products together. The group column is the 
+original column and used to join or search records. The akeneo.base name is used for displaying a overall 
+name on the Atero platform.
+
