@@ -16,8 +16,8 @@ source /home/ubuntu/scripts/data-team/init.cfg
 export TABLE_NAME=manufacturer
 export LOAD_TABLE=manufacturer_address
 
-if [[ -s ${HOME}/.pwa ]]; then
-   . ${HOME}/.pwa
+if [[ -s ${HOME}/.pwx ]]; then
+   . ${HOME}/.pwx
 else
    echo ""
    echo ""
