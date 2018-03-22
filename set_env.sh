@@ -17,13 +17,29 @@ run_env=$1
 echo ${run_env} 
 
 if [[ ${run_env} == DEV ]]; then
-  echo "hello"
    cp init_dev.cfg init.cfg
+   cp ${HOME}/.pwd ${HOME}.pwx
+   cat init.cfg
    exit 0
 fi
 
 if [[ ${run_env} == STG ]]; then
    cp init_stg.cfg init.cfg
+   cp ${HOME}/.pws ${HOME}.pwx
+   cat init.cfg
    exit 0
 fi
 
+if [[ ${run_env} == PRD ]]; then
+   cp init_prd.cfg init.cfg
+   cp ${HOME}/.pwp ${HOME}.pwx
+   cat init.cfg
+   exit 0
+fi
+
+if [[ ${run_env} == DEMO ]]; then
+   cp init_demo.cfg init.cfg
+   cp ${HOME}/.pwo ${HOME}.pwx
+   cat init.cfg
+   exit 0
+fi
