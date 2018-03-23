@@ -36,8 +36,8 @@ echo "" > ${SQLDIR}/${sql_pgm}
 
 while [ ${cnt} -le 150 ]
 do
-echo "insert into public.application_user (email, first_name, last_name, email_confirmed, password_hash, user_role, created_at, created_by)
-values ('user@dealerorg${cnt}.com','User First Name','User last Name','N',NULL,'Admin', current_timestamp, 1); " >> ${SQLDIR}/${sql_pgm}
+echo "insert into public.application_user (email,first_name,last_name,email_confirmed,password_hash,user_role,created_at,created_by)
+values ('user@dealerorg${cnt}.com','User First Name','User last Name','N',NULL,'DEALER_ADMIN',current_timestamp,1); " >> ${SQLDIR}/${sql_pgm}
    cnt=$(( ${cnt} + 1 ))
 
 done
