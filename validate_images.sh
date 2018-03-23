@@ -17,12 +17,12 @@ export PGM_NAME=validate_images
 export SQL_PGM=sel_link.sql
 export SQL_OUT=link.txt
 
-if [[ -s ${HOME}/.pwa ]]; then
-   . ${HOME}/.pwa
+if [[ -s ${HOME}/.pwx ]]; then
+   . ${HOME}/.pwx
 else
    echo ""
    echo ""
-   echo "ERROR: password file ${HOME}/.pwa is empty or does not exist"
+   echo "ERROR: password file ${HOME}/.pwx is empty or does not exist"
    echo "       processing terminating now."
    echo ""
    echo ""
