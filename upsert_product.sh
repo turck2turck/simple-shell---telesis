@@ -27,16 +27,22 @@ else
    exit 99
 fi
 
+echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
+echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
+
 #####################################################################################
 ### Work with loading.akeneo
 #####################################################################################
+<<<<<<< HEAD
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
+=======
+>>>>>>> 2bf7a72d38b355222031dbbc9e93e7587d0ab957
 
 echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
-  if [[ ${es} -ne 0 ]]; then
+   if [[ ${es} -ne 0 ]]; then
       echo "Error with the tru_akeneo.sql command."
       exit 3
    fi
@@ -73,8 +79,9 @@ ALTER TABLE loading.akeneo ADD COLUMN variant_hash8 character varying(50) COLLAT
 ALTER TABLE loading.akeneo ADD COLUMN variant_hash9 character varying(50) COLLATE pg_catalog."default";
 ALTER TABLE loading.akeneo ADD COLUMN variant_hash10 character varying(50) COLLATE pg_catalog."default";
 ALTER TABLE loading.akeneo ADD COLUMN post_msrp numeric(12,2);
-ALTER TABLE loading.akeneo ADD COLUMN post_depth integer;
+ALTER TABLE loading.akeneo ADD COLUMN post_depth numeric(10,3);
 ALTER TABLE loading.akeneo ADD COLUMN post_shipping_weight numeric(10,3);
+
 EOF
 
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
@@ -86,12 +93,14 @@ es=${?}
 
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_akeneo_err.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
-  if [[ ${es} -ne 0 ]]; then
-     echo "Error with the ins_akeneo.sql command."
-     exit 3
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the ins_akeneo.sql command."
+      exit 3
    fi
 
-### Products and Accessories
+#####################################################################################
+### Begin public.product anad associated tables
+#####################################################################################
 
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
@@ -107,47 +116,10 @@ es=${?}
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_accessory_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_product_accessory.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_attachemant.sql command."
-      exit 3
-   fi
-
-## Options
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the ins_option_product.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_option_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_option_assoc.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_attachemant.sql command."
-      exit 3
-   fi
-
-## Variants
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_variant.sql command."
       exit 3
    fi
 
@@ -158,25 +130,38 @@ es=${?}
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_variant_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_option_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_variant_assoc.sql command."
+      echo "Error with the product_option_assoc.sql command."
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the product_attachemant.sql command."
       exit 3
    fi
 
-## Process soft deletes
-#psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_soft_deletes.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the product_attachemant.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_option_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the product_option_assoc.sql command."
+      exit 3
+   fi
+
+#psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/product_accessory_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 #es=${?}
 #   if [[ ${es} -ne 0 ]]; then
-#      echo "Error with the product_attachemant.sql command."
+#      echo "Error with the product_accessory_assoc.sql command."
 #      exit 3
 #   fi
 
