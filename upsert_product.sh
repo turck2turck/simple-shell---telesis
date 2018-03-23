@@ -15,12 +15,12 @@ source /home/ubuntu/scripts/data-team/init.cfg
 export PGM_NAME=upsert_product
 
 
-if [[ -s ${HOME}/.pwa ]]; then
-   . ${HOME}/.pwa
+if [[ -s ${HOME}/.pwx ]]; then
+   . ${HOME}/.pwx
 else
    echo ""
    echo ""
-   echo "ERROR: password file ${HOME}/.pwa is empty or does not exist"
+   echo "ERROR: password file ${HOME}/.pwx is empty or does not exist"
    echo "       processing terminating now."
    echo ""
    echo ""
@@ -30,8 +30,8 @@ fi
 #####################################################################################
 ### Work with loading.akeneo
 #####################################################################################
-echo "Executing upsert_product.sh on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
-echo "Executing upsert_product.sh on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
 echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err

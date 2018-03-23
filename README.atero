@@ -39,19 +39,19 @@ run_sql.sh - script to run any SQL
 
 Notes:
 To run the process start to finish: 
-$ ./set_env.sh <DEV> <STG>
+$ ./set_env.sh <DEV> <STG> <PRD> <DEMO>
 $ ./run_sql.sh ins_application_user.sql
 $ ./run_sql.sh ins_category.sql
 $ ./run_sql.sh ins_sub_category.sql
 $ ./run_sql.sh ins_cat_sub_assoc.sql
 cp manufacture address excel file to ${DATA_DIR} (/home/ubuntu/export/atero/). Note - the command is run 
 from a windows CMD prompt.
-epn_bap_key_pair.ppk C:\Users\jturck\Desktop\AteroDB\MFR_address_4.csv ubuntu@ec2-54-210-208-30.compute-1.amazonaws.com:/home/ubuntu/export/atero/
+pscp -i c:\Users\jturck\Desktop\AWSKeys\epn_bap_key_pair.ppk C:\Users\jturck\Desktop\AteroDB\<file name>  ubuntu@ec2-54-210-208-30.compute-1.amazonaws.com:/home/ubuntu/export/atero/
 $ ./load_manufacturer_address.sh
 $ ./upsert_manufacturer.sh
 $ ./upsert_address.sh
 To validate:
-select * from public.application_user
+select * from public.application_user;
 select * from public.category;
 select * from public.sub_category;
 select * from public.cat_sub_assoc;
@@ -60,6 +60,7 @@ select * from public.address;
 
 copy in the desired products.csv file to ${DATA_DIR}
 $ ./upsert_product.sh
+$ ./qa.sh
 
 There are 4 types of products that come via the Akeno products.csv file. This is the normal Akeneo export 
 that is loading to the loading.akeneo table as one of the first steps in upsert_product.sh scrip. The data 

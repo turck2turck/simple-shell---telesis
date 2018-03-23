@@ -1,6 +1,6 @@
 delete from public.product_attachment where product_id in (
 select p.id from public.product p, loading.akeneo a
-where p.product_hash = a.product_hash and a.item_type = 'item_type_option');
+where p.product_hash = a.product_hash and a.item_type = 'item_type_product');
 
 -- 5 images
 insert into public.product_attachment (product_id,type,main,link)

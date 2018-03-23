@@ -14,32 +14,28 @@ umask 137
 source /home/ubuntu/scripts/data-team/init.cfg
 
 export TABLE_NAME=address
-export IN_TABLE=manufacturer_address.sql
+export PGM_NAME=upsert_address
 
-if [[ -s ${HOME}/.pwa ]]; then
- . ${HOME}/.pwa
+if [[ -s ${HOME}/.pwx ]]; then
+ . ${HOME}/.pwx
 else
    echo ""
    echo ""
-   echo "ERROR: password file ${HOME}/.pwa is empty or does not exist"
+   echo "ERROR: password file ${HOME}/.pwx is empty or does not exist"
    echo "       processing terminating now."
    echo ""
    echo ""
    exit 99
 fi
 
-echo "SELECT count(*) from public.${TABLE_NAME} " > ${RUNDIR}/cnt_${TABLE_NAME}.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${RUNDIR}/cnt_${TABLE_NAME}.sql >> ${LOGDIR}/upsert_${TABLE_NAME}.out 2>> ${ELOGDIR}/upsert_${TABLE_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the cbt_${TABLE_NAME}.sql command."
-      exit 3
-   fi
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_${IN_TABLE}.sql >> ${LOGDIR}/upsert_${TABLE_NAME}.out 2>> ${ELOGDIR}/upsert_${TABLE_NAME}.err
+echo "SELECT count(*) from public.${TABLE_NAME} " > ${SQLDIR}/cnt_${TABLE_NAME}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${SQLDIR}/cnt_${TABLE_NAME}.sql >> ${LOGDIR}/upsert_${TABLE_NAME}.out 2>> ${ELOGDIR}/upsert_${TABLE_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the upd_${IN_TABLE}.sql command."
+      echo "Error with the cnt_${TABLE_NAME}.sql command."
       exit 3
    fi
 
@@ -50,10 +46,11 @@ es=${?}
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
-ALTER TABLE loading.${IN_TABLE} DROP COLUMN address_hash ;
-ALTER TABLE loading.${IN_TABLE} DROP COLUMN mfr_id ;
-ALTER TABLE loading.${IN_TABLE} DROP COLUMN id ;
-EOF
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${SQLDIR}/cnt_${TABLE_NAME}.sql >> ${LOGDIR}/upsert_${TABLE_NAME}.out 2>> ${ELOGDIR}/upsert_${TABLE_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the cnt_${TABLE_NAME}.sql command."
+      exit 3
+   fi
 
 exit 0

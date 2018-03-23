@@ -16,12 +16,12 @@ source /home/ubuntu/scripts/data-team/init.cfg
 export RUN_THIS=$1
 export PGM_NAME=run_sql.sh
 
-if [[ -s ${HOME}/.pwa ]]; then
- . ${HOME}/.pwa
+if [[ -s ${HOME}/.pwx ]]; then
+ . ${HOME}/.pwx
 else
    echo ""
    echo ""
-   echo "ERROR: password file ${HOME}/.pwa is empty or does not exist"
+   echo "ERROR: password file ${HOME}/.pwx is empty or does not exist"
    echo "       processing terminating now."
    echo ""
    echo ""

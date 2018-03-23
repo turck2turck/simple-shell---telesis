@@ -23,17 +23,11 @@ delete from public.product_option_assoc where parent_product_id in (
   select p.id from public.option_product p, loading.akeneo_error a
    where p.product_hash = a.product_hash and a.enabled = '0');
 
-update public.product set deleted_by = 1, deleted_at = current_timestamp, product_hash = md5(ROW(m.id, a.model_no, a.enabled)::TEXT)
-FROM public.manufacturer m, loading.akeneo_error a
-where UPPER(a.manufacturer_name) = UPPER(m.short_name)
-and product.product_hash in (select product_hash from loading.akeneo_error) ;
+update public.product set deleted_by = 1, deleted_at = current_timestamp
+FROM loading.akeneo_error a where a.product.product_hash = p.product_hash ;
 
-update public.option_product set deleted_by = 1, deleted_at = current_timestamp, product_hash = md5(ROW(m.id, a.model_no, a.enabled)::TEXT)
-FROM public.manufacturer m , loading.akeneo_error a
-where UPPER(a.manufacturer_name) = UPPER(m.short_name)
-and product.product_hash in (select product_hash from loading.akeneo_error) ;
+update public.option_product set deleted_by = 1, deleted_at = current_timestamp
+FROM loading.akeneo_error a where a.product.product_hash = p.product_hash ;
 
-update public.variant_product set deleted_by = 1, deleted_at = current_timestamp, product_hash = md5(ROW(m.id, a.model_no, a.enabled)::TEXT)
-FROM public.manufacturer m , loading.akeneo_error a
-where UPPER(a.manufacturer_name) = UPPER(m.short_name)
-and product.product_hash in (select product_hash from loading.akeneo_error) ;
+update public.variant_product set deleted_by = 1, deleted_at = current_timestamp
+FROM loading.akeneo_error a where a.product.product_hash = p.product_hash ;
