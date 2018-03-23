@@ -11,8 +11,7 @@ umask 137
 # Purpose: Execute passed in SQL.
 #
 ###########################################################################################
-source /home/ubuntu/scripts/data-team/init.cfg
-
+source /home/ubuntu/config/init.cfg
 export RUN_THIS=$1
 export PGM_NAME=run_sql.sh
 

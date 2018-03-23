@@ -12,7 +12,7 @@ umask 137
 #
 ###########################################################################################
 export DEALER=$1
-source /home/ubuntu/scripts/data-team/init.cfg
+source /home/ubuntu/config/init.cfg
 source ${CONFIG}/${DEALER}.cfg
 export PGM_NAME=su_dealer
 export SQL_PGM1=ins_su_dealer_org.sql

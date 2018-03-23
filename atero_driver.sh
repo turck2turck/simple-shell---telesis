@@ -11,7 +11,7 @@ umask 137
 # Purpose: Execute the loading and updateing of the Atero database.
 #
 ###########################################################################################
-source /home/ubuntu/scripts/data-team/init.cfg
+source /home/ubuntu/config/init.cfg
 PIDFILE=/home/ubuntu/atero_driver.pid
 
 #-----------------------------------------------

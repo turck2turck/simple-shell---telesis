@@ -11,7 +11,7 @@ umask 137
 # Purpose: Execute QA SQL.
 #
 ###########################################################################################
-source /home/ubuntu/scripts/data-team/init.cfg
+source /home/ubuntu/config/init.cfg
 
 export PGM_NAME=application_user
 export cnt=1

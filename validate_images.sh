@@ -11,8 +11,7 @@ umask 137
 # Purpose: insert or update records in the public.address table.
 #
 ###########################################################################################
-source /home/ubuntu/scripts/data-team/init.cfg
-
+source /home/ubuntu/config/init.cfg
 export PGM_NAME=validate_images
 export SQL_PGM=sel_link.sql
 export SQL_OUT=link.txt
