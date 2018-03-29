@@ -16,7 +16,6 @@ source /home/ubuntu/config/init.cfg
 export PGM_NAME=qa
 export akeneo_export=$1
 
-rm ${RUNDIR}/product_family.out
 
 if [[ -s ${HOME}/.pwx ]]; then
  . ${HOME}/.pwx
@@ -54,7 +53,6 @@ es=${?}
       exit 3
    fi
 
-export product_family_run=`cat ${RUNDIR}/product_family.out |grep XXX |awk '{print$1}'`
 
 ## Independent Queries
 echo "" > ${SQLDIR}/independent_query.sql

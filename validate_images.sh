@@ -29,7 +29,7 @@ else
 fi
 
 echo "select link from public.product_attachment " > ${SQLDIR}/${SQL_PGM}
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/${SQL_PGM} > ${SQLDIR}/${SQL_OUT}
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${SQLDIR}/${SQL_PGM} > ${SQLDIR}/${SQL_OUT}
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the ${SQL_PGM} command."
@@ -37,6 +37,8 @@ es=${?}
    fi
 
 tail -n +4 ${SQLDIR}/${SQL_OUT} > /tmp/1.txt && mv /tmp/1.txt ${SQLDIR}/${SQL_OUT}
+perl -pne 's/(.*)\//$1\/"/' ${SQLDIR}/${SQL_OUT}> /tmp/1.txt
+cat /tmp/1.txt |sed 's/$/"/' > ${SQLDIR}/${SQL_OUT}
 
 echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out

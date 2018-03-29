@@ -54,10 +54,11 @@ es=${?}
       exit 3
    fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
-ALTER TABLE loading.${LOAD_TABLE} DROP COLUMN address_hash ;
-ALTER TABLE loading.${LOAD_TABLE} DROP COLUMN mfr_id ;
-ALTER TABLE loading.${LOAD_TABLE} DROP COLUMN id ;
-EOF
+#
+#psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
+#ALTER TABLE loading.${LOAD_TABLE} DROP COLUMN address_hash ;
+#ALTER TABLE loading.${LOAD_TABLE} DROP COLUMN mfr_id ;
+#ALTER TABLE loading.${LOAD_TABLE} DROP COLUMN id ;
+#EOF
 
 exit 0

@@ -1,8 +1,12 @@
 UPDATE loading.akeneo set atero_cat2 = 'default' where atero_cat2 IS NULL;
 
+--UPDATE loading.akeneo set product_hash = md5(ROW(manufacturer.id, akeneo.model_no)::TEXT), mfg_id = manufacturer.id
+--FROM public.manufacturer
+--WHERE UPPER(akeneo.manufacturer_name) = UPPER(manufacturer.short_name);
+
 UPDATE loading.akeneo set product_hash = md5(ROW(manufacturer.id, akeneo.model_no)::TEXT), mfg_id = manufacturer.id
 FROM public.manufacturer
-WHERE UPPER(akeneo.manufacturer_name) = UPPER(manufacturer.short_name);
+WHERE UPPER(manufacturer_abbreviation) = UPPER(mfr_abbr);
 
 UPDATE loading.akeneo set variant_hash1 = md5(ROW(variant_axis_1, variant_axis_1_value)::TEXT) where variant_axis_1 is NOT NULL;
 UPDATE loading.akeneo set variant_hash2 = md5(ROW(variant_axis_2, variant_axis_2_value)::TEXT) where variant_axis_2 is NOT NULL;
@@ -20,7 +24,10 @@ FROM public.cat_sub_assoc a, public.category c, public.sub_category s
 WHERE atero_cat2 = s.sub_category_name
   AND a.sub_category_id = s.id;
 
-UPDATE loading.akeneo SET post_shipping_weight = shipping_weight/per_case WHERE enabled=1;
-UPDATE loading.akeneo SET post_msrp = price_usd/price_by_qty WHERE enabled=1;
-UPDATE loading.akeneo SET post_depth = length/per_case WHERE enabled=1 and uom_measurement=0;
-UPDATE loading.akeneo SET post_depth = length WHERE enabled=1 and uom_measurement=1;
+UPDATE loading.akeneo SET post_shipping_weight = shipping_weight/per_case WHERE enabled='1';
+UPDATE loading.akeneo SET post_msrp = price_usd/price_by_qty WHERE enabled='1';
+UPDATE loading.akeneo SET post_depth = length/per_case WHERE enabled='1' and uom_measurement='0';
+UPDATE loading.akeneo SET post_depth = length WHERE enabled='1' and uom_measurement='1';
+
+UPDATE loading.akeneo SET post_unit_of_measure = 'Individually' where selling_unit = 'selling_unit_single' and enabled='1'; 
+UPDATE loading.akeneo SET post_unit_of_measure = 'By Case' where selling_unit = 'selling_unit_case' and enabled='1'; 

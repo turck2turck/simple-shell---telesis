@@ -33,11 +33,8 @@ echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 #####################################################################################
 ### Work with loading.akeneo
 #####################################################################################
-<<<<<<< HEAD
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
-=======
->>>>>>> 2bf7a72d38b355222031dbbc9e93e7587d0ab957
 
 echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
@@ -81,6 +78,7 @@ ALTER TABLE loading.akeneo ADD COLUMN variant_hash10 character varying(50) COLLA
 ALTER TABLE loading.akeneo ADD COLUMN post_msrp numeric(12,2);
 ALTER TABLE loading.akeneo ADD COLUMN post_depth numeric(10,3);
 ALTER TABLE loading.akeneo ADD COLUMN post_shipping_weight numeric(10,3);
+ALTER TABLE loading.akeneo ADD COLUMN post_unit_of_measure character varying(50) COLLATE pg_catalog."default";
 
 EOF
 
@@ -184,6 +182,7 @@ ALTER TABLE loading.akeneo DROP COLUMN variant_hash10 ;
 ALTER TABLE loading.akeneo DROP COLUMN post_msrp ;
 ALTER TABLE loading.akeneo DROP COLUMN post_depth ;
 ALTER TABLE loading.akeneo DROP COLUMN post_shipping_weight ;
+ALTER TABLE loading.akeneo DROP COLUMN post_unit_of_measure ;
 EOF
 
 

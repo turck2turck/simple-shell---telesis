@@ -16,7 +16,7 @@ export RUN_THIS=$1
 export PGM_NAME=run_sql.sh
 
 if [[ -s ${HOME}/.pwx ]]; then
- . ${HOME}/.pwx
+   . ${HOME}/.pwx
 else
    echo ""
    echo ""

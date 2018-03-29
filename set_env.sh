@@ -13,34 +13,35 @@ umask 137
 ###########################################################################################
 export RUN_ENV=$1
 export HOME=/home/ubuntu/
+export CONFIG=${HOME}/config
 
 run_env=$1
 
 if [[ ${run_env} == DEV ]]; then
-   cp init_dev.cfg init.cfg
+   cp ${CONFIG}/init_dev.cfg ${CONFIG}/init.cfg
    cp ${HOME}/.pwd ${HOME}/.pwx
-   cat init.cfg
+   cat ${CONFIG}/init.cfg
    exit 0
 fi
 
 if [[ ${run_env} == STG ]]; then
-   cp init_stg.cfg init.cfg
+   cp ${CONFIG}/init_stg.cfg ${CONFIG}/init.cfg
    cp ${HOME}/.pws ${HOME}/.pwx
-   cat init.cfg
+   cat ${CONFIG}/init.cfg
    exit 0
 fi
 
 if [[ ${RUN_ENV} == PRD ]]; then
-   cp init_prd.cfg init.cfg
+   cp ${CONFIG}/init_prd.cfg ${CONFIG}/init.cfg
    cp ${HOME}/.pwp ${HOME}/.pwx
-   cat init.cfg
+   cat ${CONFIG}/init.cfg
    exit 0
 fi
 
 if [[ ${RUN_ENV} == DEMO ]]; then
-   cp init_demo.cfg init.cfg
+   cp ${CONFIG}/init_demo.cfg ${CONFIG}/init.cfg
    cp ${HOME}/.pwo ${HOME}/.pwx
-   cat init.cfg
+   cat ${CONFIG}/init.cfg
    exit 0
 fi
 
