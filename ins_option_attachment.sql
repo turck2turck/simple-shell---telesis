@@ -1,5 +1,4 @@
--- Need to delete any attachment that the product matches in the akeneo table
-delete from public.product_attachment where product_id in (
+delete from public.product_attachment where option_product_id in (
 select p.id from public.option_product p, loading.akeneo a
 where p.product_hash = a.product_hash );
 

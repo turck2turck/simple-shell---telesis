@@ -138,14 +138,21 @@ es=${?}
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_attachemant.sql command."
+      echo "Error with the ins_product_attachement.sql command."
       exit 3
    fi
 
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_attachemant.sql command."
+      echo "Error with the ins_option_attachement.sql command."
+      exit 3
+   fi
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the ins_variant_attachement.sql command."
       exit 3
    fi
 

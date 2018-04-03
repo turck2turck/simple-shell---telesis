@@ -128,3 +128,5 @@ INSERT INTO public.sub_category (sub_category_name,atero_sub_category_name,creat
 VALUES ('cat2_batteries','Batteries',current_timestamp,1);
 INSERT INTO public.sub_category (sub_category_name,atero_sub_category_name,created_at,created_by) 
 VALUES ('cat2_electrical','Electrical',current_timestamp,1);
+INSERT INTO public.sub_category (sub_category_name,atero_sub_category_name,created_at,created_by) 
+VALUES ('cat2_lockerroom','Locker Room',current_timestamp,1);

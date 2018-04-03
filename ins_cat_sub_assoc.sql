@@ -12,7 +12,7 @@ WHERE category_name = 'cat1_commercialkitchen' AND sub_category_name IN
 INSERT INTO cat_sub_assoc (category_id, sub_category_id)
 SELECT c.id, s.id from public.category c, public.sub_category s
 WHERE category_name = 'cat1_facilities' AND sub_category_name IN 
-('cat2_lighting','cat2_paintandfinish','cat2_hardware','cat2_electrical');
+('cat2_lighting','cat2_paintandfinish','cat2_hardware','cat2_electrical','cat2_lockerroom');
 
 INSERT INTO cat_sub_assoc (category_id, sub_category_id)
 SELECT c.id, s.id from public.category c, public.sub_category s

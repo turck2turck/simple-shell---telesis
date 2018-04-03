@@ -1,10 +1,15 @@
 -- Need to delete any attachment that the product matches in the akeneo table
 delete from public.product_attachment where product_id in (
 select p.id from public.product p, loading.akeneo a
-where p.product_hash = a.product_hash and a.item_type = 'item_type_product');
+where p.product_hash = a.product_hash );
+--and a.item_type = 'item_type_product');
 
 delete from public.product_attachment where option_product_id in (
 select p.id from public.option_product p, loading.akeneo a
+where p.product_hash = a.product_hash );
+
+delete from public.product_attachment where variant_product_id in (
+select p.id from public.variant_product p, loading.akeneo a
 where p.product_hash = a.product_hash );
 
 -- 5 images
