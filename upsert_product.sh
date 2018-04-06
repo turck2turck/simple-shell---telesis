@@ -163,13 +163,6 @@ es=${?}
       exit 3
    fi
 
-#psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/product_accessory_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-#es=${?}
-#   if [[ ${es} -ne 0 ]]; then
-#      echo "Error with the product_accessory_assoc.sql command."
-#      exit 3
-#   fi
-
 
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
 ALTER TABLE loading.akeneo DROP COLUMN product_hash ;

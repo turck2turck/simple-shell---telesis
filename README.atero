@@ -58,9 +58,18 @@ select * from public.cat_sub_assoc;
 select * from public.manufacturer;
 select * from public.address;
 
-copy in the desired products.csv file to ${DATA_DIR}
+copy in the desired products.csv file to ${DATA_DIR}. Normally the qa.sh script is run after the product load. The dealer_product_base.sh script is 
+effective only for the STG environment.
 $ ./upsert_product.sh
 $ ./qa.sh
+$ ./dealer_product_base.sh
+
+When new MFRs are added using the steps above, the following scripts must also be run. The su_dealer.sh script 
+adds to the dealer_org, dealer, application_user and the manufacturer_delaer-assoc tables. The script does special 
+processing for DEMO since DEMO only has 1 dealer - Showcase.
+$ ./set_env.sh PRD
+$ ./su_dealer.sh <DEALER>
+
 
 There are 4 types of products that come via the Akeno products.csv file. This is the normal Akeneo export 
 that is loading to the loading.akeneo table as one of the first steps in upsert_product.sh scrip. The data 

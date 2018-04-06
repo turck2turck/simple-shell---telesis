@@ -81,4 +81,30 @@ do
       fi	
 done
 
+#Adjust for only 1 dealer in DEMO (showcase).
+cp ~/config/init_demo.cfg ~/config/init.cfg
+
+echo "truncate table public.manufacturer_dealer_assoc"> ${SQLDIR}/${SQL_PGM5}
+   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM5} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+   es=${?}
+      if [[ ${es} -ne 0 ]]; then
+         echo "Error with the ${SQL_PGM5} script."
+         exit 3
+      fi
+
+
+cat ${CONFIG}/${DEALER}_mfr.cfg |while read i
+do
+   echo "insert into public.manufacturer_dealer_assoc (manufacturer_id,dealer_org_id)
+         select m.id, d.id
+         from public.manufacturer m, public.dealer_org" > ${SQLDIR}/${SQL_PGM6} psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM4} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM6} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+   es=${?}
+      if [[ ${es} -ne 0 ]]; then
+         echo "Error with the ${SQL_PGM6} script."
+         exit 3
+      fi
+done
+
+
 exit 0
