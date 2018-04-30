@@ -1,8 +1,7 @@
 UPDATE loading.akeneo set atero_cat2 = 'default' where atero_cat2 IS NULL;
 
---UPDATE loading.akeneo set product_hash = md5(ROW(manufacturer.id, akeneo.model_no)::TEXT), mfg_id = manufacturer.id
---FROM public.manufacturer
---WHERE UPPER(akeneo.manufacturer_name) = UPPER(manufacturer.short_name);
+UPDATE loading.akeneo set model_no = REPLACE(model_no, '‐','-');
+UPDATE loading.akeneo set sku = REPLACE(sku, '‐','-');
 
 UPDATE loading.akeneo set product_hash = md5(ROW(manufacturer.id, akeneo.model_no)::TEXT), mfg_id = manufacturer.id
 FROM public.manufacturer
@@ -31,3 +30,5 @@ UPDATE loading.akeneo SET post_depth = length WHERE enabled='1' and uom_measurem
 
 UPDATE loading.akeneo SET post_unit_of_measure = 'Individually' where selling_unit = 'selling_unit_single' and enabled='1'; 
 UPDATE loading.akeneo SET post_unit_of_measure = 'By Case' where selling_unit = 'selling_unit_case' and enabled='1'; 
+
+UPDATE loading.akeneo SET post_msrp = 1 WHERE post_msrp='0';

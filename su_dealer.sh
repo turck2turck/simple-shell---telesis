@@ -38,8 +38,9 @@ source ${CONFIG}/${DEALER}.cfg
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${QALOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${ELOGDIR}/${PGM_NAME}.err
 
-echo "insert into public.dealer_org (name,logo,support_email,is_credit_enabled,credit_period_value,credit_amount,created_at,created_by,dealer_display_name) 
-      values (${D_NAME},${D_LOGO},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME});" > ${SQLDIR}/${SQL_PGM1}
+echo "insert into public.dealer_org (name,logo,message,support_email,is_credit_enabled,credit_period_value,credit_amount,created_at,created_by,dealer_display_name) 
+     values (${D_NAME},${D_LOGO},${D_MESSAGE},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME}) ON CONFLICT (name) DO UPDATE 
+set logo=EXCLUDED.logo,message=EXCLUDED.message,support_email=EXCLUDED.support_email,is_credit_enabled=EXCLUDED.is_credit_enabled,credit_period_value=EXCLUDED.credit_period_value,credit_amount=EXCLUDED.credit_amount,updated_at=current_timestamp,1; " > ${SQLDIR}/${SQL_PGM1}
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM1} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
@@ -67,44 +68,53 @@ es=${?}
       exit 3
    fi
 
+echo "delete from public.manufacturer_dealer_assoc 
+      where dealer_org_id in (select id from public.dealer_org where d.name=${D_NAME} "> ${SQLDIR}/${SQL_PGM4}
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM4} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the ${SQL_PGM4} script."
+      exit 3
+   fi	
+
 cat ${CONFIG}/${DEALER}_mfr.cfg |while read i 
 do
    echo "insert into public.manufacturer_dealer_assoc (manufacturer_id,dealer_org_id)
          select m.id, d.id
          from public.manufacturer m, public.dealer_org d
-         where d.name=${D_NAME} and m.mfr_abbr=${i}" > ${SQLDIR}/${SQL_PGM4}
-   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM4} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
-   es=${?}
-      if [[ ${es} -ne 0 ]]; then
-         echo "Error with the ${SQL_PGM4} script."
-         exit 3
-      fi	
-done
-
-#Adjust for only 1 dealer in DEMO (showcase).
-cp ~/config/init_demo.cfg ~/config/init.cfg
-
-echo "truncate table public.manufacturer_dealer_assoc"> ${SQLDIR}/${SQL_PGM5}
+         where d.name=${D_NAME} and m.mfr_abbr=${i}" > ${SQLDIR}/${SQL_PGM5}
    psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM5} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
    es=${?}
       if [[ ${es} -ne 0 ]]; then
          echo "Error with the ${SQL_PGM5} script."
          exit 3
-      fi
-
-
-cat ${CONFIG}/${DEALER}_mfr.cfg |while read i
-do
-   echo "insert into public.manufacturer_dealer_assoc (manufacturer_id,dealer_org_id)
-         select m.id, d.id
-         from public.manufacturer m, public.dealer_org" > ${SQLDIR}/${SQL_PGM6} psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM4} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
-   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM6} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
-   es=${?}
-      if [[ ${es} -ne 0 ]]; then
-         echo "Error with the ${SQL_PGM6} script."
-         exit 3
-      fi
+      fi	
 done
+
+#Adjust for only 1 dealer in DEMO (showcase).
+#cp ~/config/init_demo.cfg ~/config/init.cfg
+
+#echo "truncate table public.manufacturer_dealer_assoc"> ${SQLDIR}/${SQL_PGM5}
+#   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM5} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+#   es=${?}
+#      if [[ ${es} -ne 0 ]]; then
+#         echo "Error with the ${SQL_PGM5} script."
+#         exit 3
+#      fi
+#
+
+#cat ${CONFIG}/${DEALER}_mfr.cfg |while read i
+#do
+#   echo "insert into public.manufacturer_dealer_assoc (manufacturer_id,dealer_org_id)
+#         select m.id, d.id
+#         from public.manufacturer m, public.dealer_org" > ${SQLDIR}/${SQL_PGM6} psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM4} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+#   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM6} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+#   es=${?}
+#      if [[ ${es} -ne 0 ]]; then
+#         echo "Error with the ${SQL_PGM6} script."
+#         exit 3
+#      fi
+#done
 
 
 exit 0

@@ -47,6 +47,7 @@ $ ./run_sql.sh ins_cat_sub_assoc.sql
 cp manufacture address excel file to ${DATA_DIR} (/home/ubuntu/export/atero/). Note - the command is run 
 from a windows CMD prompt.
 pscp -i c:\Users\jturck\Desktop\AWSKeys\epn_bap_key_pair.ppk C:\Users\jturck\Desktop\AteroDB\<file name>  ubuntu@ec2-54-210-208-30.compute-1.amazonaws.com:/home/ubuntu/export/atero/
+$ mv <file name> manufacturer_address.csv
 $ ./load_manufacturer_address.sh
 $ ./upsert_manufacturer.sh
 $ ./upsert_address.sh
