@@ -3,7 +3,8 @@ UPDATE loading.akeneo set atero_cat2 = 'default' where atero_cat2 IS NULL;
 UPDATE loading.akeneo set model_no = REPLACE(model_no, '‐','-');
 UPDATE loading.akeneo set sku = REPLACE(sku, '‐','-');
 
-UPDATE loading.akeneo set product_hash = md5(ROW(manufacturer.id, akeneo.model_no)::TEXT), mfg_id = manufacturer.id
+--UPDATE loading.akeneo set product_hash = md5(ROW(manufacturer.id, akeneo.model_no)::TEXT), mfg_id = manufacturer.id
+UPDATE loading.akeneo set product_hash = md5(ROW(akeneo.model_no,manufacturer.id)::TEXT), mfg_id = manufacturer.id
 FROM public.manufacturer
 WHERE UPPER(manufacturer_abbreviation) = UPPER(mfr_abbr);
 
