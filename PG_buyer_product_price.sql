@@ -17,18 +17,20 @@ from public.product p, loading.xls_dealer_product_base x, public.manufacturer m
 where x.product_model_number = p.product_model_number 
 and x.mfr_abbr = m.mfr_abbr
 and p.manufacturer_id = m.id 
+and p.msrp <> 1
 ON CONFLICT (dealer_org_id, product_id) DO UPDATE
 set product_id=EXCLUDED.product_id, net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price;
 
 -- Insert child records
 insert into public.buyer_product_price (buyer_org_id,dealer_product_base_id,dealer_org_id,price,hidden_override,can_purchase_override)
-select x.buyer_org_id,d.id,x.dealer_org_id,round((x.price/p.msrp)*100,2),false,true 
+select x.buyer_org_id,d.id,x.dealer_org_id,(x.price/p.msrp)*100,false,true 
 from loading.xls_buyer_price x, public.dealer_product_base d, public.product p, public.manufacturer m
 where x.mfr_abbr = m.mfr_abbr  
   and x.product_model_number = p.product_model_number 
   and x.dealer_org_id = d.dealer_org_id 
   and p.manufacturer_id = m.id 
   and d.product_id = p.id  
+  and p.msrp <> 1
 ON CONFLICT (buyer_org_id,dealer_product_base_id,dealer_org_id)  DO UPDATE
 set buyer_org_id=EXCLUDED/buyer_org_id, dealer_product_base_id=EXCLUDED.dealer_product_base,dealer_org_id=EXCLUDED.dealer_org_id;
    
@@ -40,4 +42,5 @@ where product_model_number not in (select p.product_model_number
 		   where x.mfr_abbr = m.mfr_abbr  
   		 and x.product_model_number = p.product_model_number
   		 and x.dealer_org_id = d.dealer_org_id 
-  		 and p.manufacturer_id = m.id)  ;
+  		 and p.manufacturer_id = m.id
+		 and p.msrp <> 1)  ;
