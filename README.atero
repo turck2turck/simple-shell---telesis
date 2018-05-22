@@ -13,7 +13,6 @@ ins_cat_sub_assoc.sql - Populates the public.cat_sub_assoc table.
 load_manufacturer_address.sh
 upsert_manufacturer.sh
    ins_manufacturer.sql - Populates the public.manufacture table.
-   upd_manufacturer_address.sql
 upsert_address.sh
    ins_address.sql - Populates the public.address table.
 

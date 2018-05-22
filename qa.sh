@@ -56,8 +56,8 @@ es=${?}
 
 ## Independent Queries
 echo "" > ${SQLDIR}/independent_query.sql
-echo "select sku from public.product where cat_sub_assoc_id is NULL;" >> ${SQLDIR}/independent_query.sql
-echo "select sku from public.product where msrp is NULL ;" >> ${SQLDIR}/independent_query.sql
+echo "select sku,product_model_number,manufacturer_id from public.product where cat_sub_assoc_id is NULL and deleted_at is NULL;" >> ${SQLDIR}/independent_query.sql
+echo "select sku,product_model_number,manufacturer_id from public.product where msrp is NULL and deleted_at is NULL;" >> ${SQLDIR}/independent_query.sql
 #echo "select product_model_number, name from public.product where product_family = upper('${product_family_run}');" >> ${SQLDIR}/independent_query.sql
 
 #echo "select p.product_model_number AS product, p.description AS Product_description, o.product_model_number AS option_product, o.description AS Option_description  from public.product_option_assoc a, public.product p, public.option_product o where a.parent_product_id = p.id and a.type_flag ='P'  and a.child_product_id = o.id order by p.product_model_number;" >> ${SQLDIR}/independent_query.sql
