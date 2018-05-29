@@ -35,7 +35,8 @@ upd_akeneo.sql - updates the data in the loading.akeneo table.
    ins_variant_product_attachment.sql - insert/update records in the public.product_attachment table.
 
 run_sql.sh - script to run any SQL 
-load_net_cost_multiplier.sh - loads flat file data to the loading.net_cost_multiplier table. 
+net_cost_multiplier.sh - loads flat file data to the loading.net_cost_multiplier table and then executes the processing for setting the
+   net_cost for the dealer. records aded to the dealer_product_base table. 
 dealer_product_base.sh - pricing script that adds records to the public.dealer_product_base table. uses ${CONFIG}/${DEALER}_discount.cfg 
    input file. sample of the input: 'mts'|'EVER'|80  <-- means 20 percent disount for dealer MTS and manufacturer EVER
 validate_images.sh - script to validate that the image link in the product_attachment table actually exists in S3. Use caution when 
