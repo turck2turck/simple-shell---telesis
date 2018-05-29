@@ -41,7 +41,7 @@ es=${?}
    fi
 
 echo "" > ${SQLDIR}/qa.sql
-cat ${RUNDIR}/tables.txt |while read tab 
+cat ${CONFIG}/tables.txt |while read tab 
 do
    echo "Select count(*) from ${tab} ; " >> ${SQLDIR}/qa.sql
 done

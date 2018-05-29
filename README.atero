@@ -1,42 +1,57 @@
 Database: Aterodb
 
-Scritps:
+--Scritps:
 set_env.sh - Script to set up DEV or STG environment. Pass in DEV or STG.
 init.cfg - Initialization parameters.
-init_dev.cfg - Initialization parameters for development environment.
-init_stg.cfg - Initialization parameters for stage environment.
+init_dev.cfg - Initialization parameters for the DEV environment.
+init_stg.cfg - Initialization parameters for the STG environment.
+init_demo.cfg - Initialization parameters for the DEMO environment.
+init_prd.cfg - Initialization parameters for the PRD environment.
 ins_application_user.sql - Populates the public.application_user table.
 ins_category.sql - Populates the public.category table.
-ins_sub_category.sql - Populates the sub_category table.
+ins_sub_category.sql - Populates the public.sub_category table.
 ins_cat_sub_assoc.sql - Populates the public.cat_sub_assoc table.
 
-load_manufacturer_address.sh
-upsert_manufacturer.sh
-   ins_manufacturer.sql - Populates the public.manufacture table.
-upsert_address.sh
+load_manufacturer_address.sh - loads flat file data to the loading.manufacturer_address table.
+upsert_manufacturer.sh - shell script to call SQL. 
+   ins_manufacturer.sql - insert/update records in the public.manufacture table.
+upsert_address.sh - shell script to call SQL. NOTE - do not run more than once as addresses can not be updated.
    ins_address.sql - Populates the public.address table.
 
-upsert_product.sh
-   tru_akeneo.sql
-   upd_akeneo.sql
-   ins_akeneo_err.sql
-   ins_product_product.sql
-   ins_product_accessory.sql
-   ins_product_accessory_assoc.sql
-   ins_product_attachment.sql
-   ins_option_product.sql
-   ins_product_option_assoc.sql
-   ins_option_product_attachment.sql
-   ins_variant.sql
-   ins_variant_product.sql
-   ins_product_variant_assoc.sql
-   ins_variant_product_attachment.sql
-   upd_soft_deletes.sql
+upsert_product.sh - shell script to call SQL.
+tru_akeneo.sql - truncates the loading.akeneo table.
+upd_akeneo.sql - updates the data in the loading.akeneo table. 
+   ins_akeneo_err.sql - adds error records to the loading.akeneoi_error table and removes them from the loading.akeneo table.
+   ins_product_product.sql - insert/update records in the public.product table.
+   ins_product_accessory.sql - insert/update records in the public.product_accessory table.
+   ins_product_accessory_assoc.sql - insert records in the public.product_accessory_assoc table.
+   ins_product_attachment.sql - insert records in the public.product_attachment table.
+   ins_option_product.sql - insert/update records in the public.option_product table.
+   ins_product_option_assoc.sql - insert records in the public.product_option_assoc table.
+   ins_option_product_attachment.sql - insert records in the public.product_attachment table.
+   ins_variant.sql - insert records in the public.variant table.
+   ins_variant_product.sql - insert/update records in the public.variant_product table.
+   ins_product_variant_assoc.sql - insert records in the public.product_variant_assoc table.
+   ins_variant_product_attachment.sql - insert/update records in the public.product_attachment table.
 
 run_sql.sh - script to run any SQL 
+load_net_cost_multiplier.sh - loads flat file data to the loading.net_cost_multiplier table. 
+dealer_product_base.sh - pricing script that adds records to the public.dealer_product_base table. uses ${CONFIG}/${DEALER}_discount.cfg 
+   input file. sample of the input: 'mts'|'EVER'|80  <-- means 20 percent disount for dealer MTS and manufacturer EVER
+validate_images.sh - script to validate that the image link in the product_attachment table actually exists in S3. Use caution when 
+   running this script as it is costly.
 
+--One time/discontinued scripts:
+su_stg_dealer.sh
+su_mda.sh
+su_dealer.sh
+wholesale.sql
+man_deal_assoc.sh
+dealer_org.sh
+dealer.sh
+upd_soft_deletes.sql
 
-Notes:
+--Notes:
 To run the process start to finish: 
 $ ./set_env.sh <DEV> <STG> <PRD> <DEMO>
 $ ./run_sql.sh ins_application_user.sql
@@ -50,27 +65,8 @@ $ mv <file name> manufacturer_address.csv
 $ ./load_manufacturer_address.sh
 $ ./upsert_manufacturer.sh
 $ ./upsert_address.sh
-To validate:
-select * from public.application_user;
-select * from public.category;
-select * from public.sub_category;
-select * from public.cat_sub_assoc;
-select * from public.manufacturer;
-select * from public.address;
 
-copy in the desired products.csv file to ${DATA_DIR}. Normally the qa.sh script is run after the product load. The dealer_product_base.sh script is 
-effective only for the STG environment.
-$ ./upsert_product.sh
-$ ./qa.sh
-$ ./dealer_product_base.sh
-
-When new MFRs are added using the steps above, the following scripts must also be run. The su_dealer.sh script 
-adds to the dealer_org, dealer, application_user and the manufacturer_delaer-assoc tables. The script does special 
-processing for DEMO since DEMO only has 1 dealer - Showcase.
-$ ./set_env.sh PRD
-$ ./su_dealer.sh <DEALER>
-
-
+--Product Types
 There are 4 types of products that come via the Akeno products.csv file. This is the normal Akeneo export 
 that is loading to the loading.akeneo table as one of the first steps in upsert_product.sh scrip. The data 
 in column 'item_type' will be item_type_product, item_type_accessory, item_type_option or item_type_variant. 
