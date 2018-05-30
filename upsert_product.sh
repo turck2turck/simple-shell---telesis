@@ -36,11 +36,11 @@ echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
-echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+#echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tbl_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the tru_akeneo.sql command."
+      echo "Error with the itbl_akeneo.sql command."
       exit 3
    fi
 

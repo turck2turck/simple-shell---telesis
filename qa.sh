@@ -32,13 +32,13 @@ fi
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${QALOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
-echo "select distinct(product_family),'XXX' from loading.akeneo" > ${SQLDIR}/product_family.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/product_family.sql >> ${RUNDIR}/product_family.out
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_family.sql script."
-      exit 3
-   fi
+
+echo " " >> ${QALOGDIR}/${PGM_NAME}.out
+echo "-------------------------------------------------------" >> ${QALOGDIR}/${PGM_NAME}.out
+echo "The error log ~/elogs/upsert_product.err: " >> ${QALOGDIR}/${PGM_NAME}.out
+cat ~/elogs/upsert_product.err >> ${QALOGDIR}/${PGM_NAME}.out
+echo "-------------------------------------------------------" >> ${QALOGDIR}/${PGM_NAME}.out
+echo " " >> ${QALOGDIR}/${PGM_NAME}.out
 
 echo "" > ${SQLDIR}/qa.sql
 cat ${CONFIG}/tables.txt |while read tab 

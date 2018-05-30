@@ -11,10 +11,13 @@ umask 137
 # Purpose: Load the loading.net_cost_multiplier table and process the net_cost_multiplier 
 #          functions.
 # 
+# Usage:   ./net_cost_multipplier.sh <file>
+# Note:    input file must have headers
 ###########################################################################################
 source /home/ubuntu/config/init.cfg
 export PGM_NAME=net_cost_multiplier
 export IN_TABLE=net_cost_multiplier
+export UP_TABLE=net_cost_disocunt
 export IN_FILE=$1
 
 if [[ -s ${HOME}/.pwx ]]; then
@@ -37,6 +40,14 @@ psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_${IN_TABLE}.sql >
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the tru_${IN_TABLE}.sql command."
+      exit 3
+   fi
+
+echo "Truncate Table loading.${UP_TABLE} " > ${SQLDIR}/tru_${IN_TABLE}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tru_${UP_TABLE}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the tru_${UP_TABLE}.sql command."
       exit 3
    fi
 
