@@ -36,13 +36,22 @@ echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
-#echo "TRUNCATE TABLE loading.akeneo " > ${SQLDIR}/tru_akeneo.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/tbl_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${RUNDIR}/tbl_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the itbl_akeneo.sql command."
+      echo "Error with the tbl_akeneo.sql command."
       exit 3
    fi
+
+echo "ALTER TABLE loading.akeneo OWNER to ${ATERO_OWNER};" > ${SQLDIR}/alt_akeneo.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/alt_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+  if [[ ${es} -ne 0 ]]; then
+      echo "Error with the alt_akeneo.sql command."
+      exit 3
+   fi
+
 
 echo " \COPY loading.akeneo FROM '${DATADIR}/products.csv' WITH DELIMITER AS ',' CSV HEADER NULL as ''" > ${SQLDIR}/ins_akeneo.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/ins_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
