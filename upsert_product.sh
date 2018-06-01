@@ -52,6 +52,13 @@ es=${?}
       exit 3
    fi
 
+echo "UNLISTEN tblobs_default_channel;" > ${SQLDIR}/unlisten.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/unlisten.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+  if [[ ${es} -ne 0 ]]; then
+      echo "Error with the unlisten.sql command."
+      exit 3
+   fi
 
 echo " \COPY loading.akeneo FROM '${DATADIR}/products.csv' WITH DELIMITER AS ',' CSV HEADER NULL as ''" > ${SQLDIR}/ins_akeneo.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/ins_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
