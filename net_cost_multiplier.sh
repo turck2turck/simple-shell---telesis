@@ -18,7 +18,9 @@ source /home/ubuntu/config/init.cfg
 export PGM_NAME=net_cost_multiplier
 export IN_TABLE=net_cost_multiplier
 export UP_TABLE=net_cost_disocunt
-export IN_FILE=$1
+export DEALER=$1
+export MARKUP=$2
+export IN_FILE=${DEALER}_discount.txt
 
 if [[ -s ${HOME}/.pwx ]]; then
    . ${HOME}/.pwx
@@ -81,6 +83,21 @@ es=${?}
 	es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the ins_dealer_product_base.sql command."
+      exit 3
+   fi
+
+echo "update dealer_product_base d
+set buyer_price = (1+${MARKUP})*d.net_cost, updated_at=current_timestamp, updated_by=1
+from product p, dealer_org o
+where p.id = product_id
+and dealer_org_id = o.id
+and UPPER(o.name) = UPPER('${DEALER}')
+and net_cost is NOT NULL" > ${SQLDIR}/upd_dealer_product_base.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_dealer_product_base.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+	es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with the upd_dealer_product_base.sql command."
       exit 3
    fi
 
