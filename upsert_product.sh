@@ -27,179 +27,28 @@ else
    exit 99
 fi
 
-echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
-echo "Running ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
-
 #####################################################################################
 ### Work with loading.akeneo
 #####################################################################################
+
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
+echo "ALTER TABLE loading.akeneo OWNER to ${ATERO_OWNER};" > ${RUNDIR}/alt_akeneo_owner.sql
+echo " \COPY loading.akeneo FROM '${DATADIR}/products.csv' WITH DELIMITER AS ',' CSV HEADER NULL as ''" > ${RUNDIR}/ins_akeneo.sql
+echo "UNLISTEN tblobs_default_channel;" > ${RUNDIR}/unlisten.sql
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${RUNDIR}/tbl_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-  if [[ ${es} -ne 0 ]]; then
-      echo "Error with the tbl_akeneo.sql command."
-      exit 3
-   fi
-
-echo "ALTER TABLE loading.akeneo OWNER to ${ATERO_OWNER};" > ${SQLDIR}/alt_akeneo.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/alt_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-  if [[ ${es} -ne 0 ]]; then
-      echo "Error with the alt_akeneo.sql command."
-      exit 3
-   fi
-
-echo "UNLISTEN tblobs_default_channel;" > ${SQLDIR}/unlisten.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/unlisten.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-  if [[ ${es} -ne 0 ]]; then
-      echo "Error with the unlisten.sql command."
-      exit 3
-   fi
-
-echo " \COPY loading.akeneo FROM '${DATADIR}/products.csv' WITH DELIMITER AS ',' CSV HEADER NULL as ''" > ${SQLDIR}/ins_akeneo.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/ins_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_akeneo.sql command."
-      exit 3
-   fi
-
-echo "SELECT count(*) from loading.akeneo " > ${SQLDIR}/cnt_akeneo.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${SQLDIR}/cnt_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the cnt_akeneo.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
-ALTER TABLE loading.akeneo ADD COLUMN product_hash character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN mfg_id integer;
-ALTER TABLE loading.akeneo ADD COLUMN id integer NOT NULL DEFAULT nextval('product_id_seq'::regclass);
-ALTER TABLE loading.akeneo ADD COLUMN atero_cat_id integer;
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash1 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash2 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash3 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash4 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash5 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash6 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash7 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash8 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash9 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN variant_hash10 character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN post_msrp numeric(12,2);
-ALTER TABLE loading.akeneo ADD COLUMN post_depth numeric(10,3);
-ALTER TABLE loading.akeneo ADD COLUMN post_shipping_weight numeric(10,3);
-ALTER TABLE loading.akeneo ADD COLUMN post_unit_of_measure character varying(50) COLLATE pg_catalog."default";
-
-EOF
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/upd_akeneo.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the upd_akeneo.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_akeneo_err.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_akeneo.sql command."
-      exit 3
-   fi
-
-#####################################################################################
-### Begin public.product anad associated tables
-#####################################################################################
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_product_${TABLE_NAME}.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_accessory.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_product_accessory.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_option_product.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant_product.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_variant_product.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_option_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_option_assoc.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_product_attachement.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_option_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_option_attachement.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_variant_attachment.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ins_variant_attachement.sql command."
-      exit 3
-   fi
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f ${RUNDIR}/ins_product_option_assoc.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the product_option_assoc.sql command."
-      exit 3
-   fi
-
-
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a <<EOF
-ALTER TABLE loading.akeneo DROP COLUMN product_hash ;
-ALTER TABLE loading.akeneo DROP COLUMN mfg_id ;
-ALTER TABLE loading.akeneo DROP COLUMN id ;
-ALTER TABLE loading.akeneo DROP COLUMN atero_cat_id ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash1 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash2 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash3 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash4 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash5 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash6 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash7 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash8 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash9 ;
-ALTER TABLE loading.akeneo DROP COLUMN variant_hash10 ;
-ALTER TABLE loading.akeneo DROP COLUMN post_msrp ;
-ALTER TABLE loading.akeneo DROP COLUMN post_depth ;
-ALTER TABLE loading.akeneo DROP COLUMN post_shipping_weight ;
-ALTER TABLE loading.akeneo DROP COLUMN post_unit_of_measure ;
-EOF
-
+cat ${RUNDIR}/upsert_product_ss.txt |while read step
+do
+echo ${step}
+   export SQL_STEP=${step}
+   psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -v "ON_ERROR_STOP=1" -f ${RUNDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+   es=${?}
+      if [[ ${es} -ne 0 ]]; then
+         echo "Error with ${SQL_STEP}.sql command." >> ${ELOGDIR}/${PGM_NAME}.err
+         curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
+         exit 3
+      fi
+done
 
 exit 0
