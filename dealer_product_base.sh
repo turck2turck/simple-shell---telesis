@@ -14,7 +14,6 @@ umask 137
 export DEALER=$1
 source /home/ubuntu/config/init.cfg
 export PGM_NAME=dealer_product_base
-export SQL_PGM1=ins_dealer_product_base.sql
 
 
 if [[ -s ${HOME}/.pwx ]]; then
@@ -32,6 +31,7 @@ fi
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${ELOGDIR}/${PGM_NAME}.err
 
+export SQL_STEP=ins_dealer_product_base
 while read line
 do
    D_NAME=$(awk -F\| '{ print $1 }' <<< "$line")
@@ -47,11 +47,12 @@ do
    and d.name = ${D_NAME} 
    and p.msrp <> 1
    ON CONFLICT (dealer_org_id, product_id) DO UPDATE
-   SET product_id=EXCLUDED.product_id, buyer_price=EXCLUDED.buyer_price,updated_at=current_timestamp,updated_by=1; "> ${SQLDIR}/${SQL_PGM1}
-   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM1} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+   SET product_id=EXCLUDED.product_id, buyer_price=EXCLUDED.buyer_price,updated_at=current_timestamp,updated_by=1; "> ${SQLDIR}/${SQL_STEP}.sql
+   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_PGM1} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
    es=${?}
       if [[ ${es} -ne 0 ]]; then
-         echo "Error with the ${SQL_PGM1} script."
+         echo "Error with the ${SQL_PGM1} script." >>${ELOGDIR}/${PGM_NAME}.err
+         curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
          exit 3
       fi
 done < ${CONFIG}/${DEALER}_discount.cfg
