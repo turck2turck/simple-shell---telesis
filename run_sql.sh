@@ -27,7 +27,7 @@ else
    exit 99
 fi
 
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -f  ${RUNDIR}/${RUN_THIS} >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -v "ON_ERROR_STOP=1" -f ${RUNDIR}/${RUN_THIS} >> ${LOGDIR}/${PGM_NAME}.out 2>> ${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the ${RUN_THIS} script."

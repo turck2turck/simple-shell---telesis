@@ -51,4 +51,3 @@ echo ${step}
       fi
 done
 
-exit 0
