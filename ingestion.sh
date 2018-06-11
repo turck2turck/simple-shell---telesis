@@ -12,6 +12,34 @@ umask 137
 #
 # Usage:   Called from cron.
 ###########################################################################################
+PIDFILE=/home/ubuntu/pids/export.pid
+
+if [ -f $PIDFILE ]
+then
+  PID=$(cat $PIDFILE)
+  ps -p $PID > /dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+    echo "export or rsync process already running"
+    exit 1
+  else
+    ## Process not found assume not running
+    echo $$ > $PIDFILE
+    if [ $? -ne 0 ]
+    then
+      echo "Could not create incremental export PID file"
+      exit 1
+    fi
+  fi
+else
+  echo $$ > $PIDFILE
+  if [ $? -ne 0 ]
+  then
+    echo "Could not create incremental-export PID file"
+    exit 1
+  fi
+fi
+
 export RUNENV=$1
 . ~/scripts/data-team/set_env.sh ${RUNENV}
 source /home/ubuntu/config/init.cfg
@@ -29,35 +57,37 @@ else
    exit 99
 fi
 
-echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}_${RUNENV}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
+atero_exports=''
+aterocan_exports=''
 
 atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 aterocan_exports=$((cd /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
-
 echo "--------------------------------------------------------"
 echo "These are the atero exports: ${atero_exports}" >>${LOGDIR}/${PGM_NAME}.out
-echo "These are the aterocan exports: ${aterocan_exports}" >>${LOGDIR}/${PGM_NAME}.out
+echo "These are the aterocan exports: ${aterocan_exports}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
 
 for export_dir in ${atero_exports}
 do
+   echo "Processing export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
+   cp products.csv ~/export/atero/
+   sleep 10
    . ~/scripts/data-team/upsert_product.sh
-   echo "These are the atero exports: ${atero_exports}" 
-   export_name=`echo ${export_dir}`
-   mv ~/export/bap/atero_catalog_epurchasingnetwork_com${export_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
-   echo "products.csv file moved to: ~/export/atero/archive/${export_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
 done
 
  
 for canexport_dir in ${aterocan_exports}
 do
-   .~/scripts/data-team/upsert_products.sh
-   echo "These are the aterocan exports: ${aterocan_exports}" 
-   export_name=`echo ${canexport_dir}`
-   mv ~/export/bap/aterocan_catalog_epurchasingnetwork_com${export_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
-   echo "products.csv file moved to: ~/export/atero/archive/${export_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
+   echo "Processing Canada export: ${canexport_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
+   cp products.csv ~/export/atero/
+   sleep 10
+   . ~/scripts/data-team/upsert_products.sh
 done
 
 . ~/scripts/data-team/check_duplicate_skus.sh
+
+rm $PIDFILE
+
 exit 0

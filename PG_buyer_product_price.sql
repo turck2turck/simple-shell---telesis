@@ -45,3 +45,23 @@ where product_model_number not in (select p.product_model_number
   		 and x.dealer_org_id = d.dealer_org_id 
   		 and p.manufacturer_id = m.id
 		 and p.msrp <> 1)  ;
+
+-- Verify pricing Sample:
+
+select m.short_name, product_model_number, round((buyer_price/100)*msrp,2) as showroomPrice 
+from dealer_product_base d
+   join product p on d.product_id = p.id
+   join dealer_org o on d.dealer_org_id = o.id 
+   join manufacturer m on p.manufacturer_id = m.id
+where o.name = 'McCullum'
+order by m.short_name
+
+select m.short_name, product_model_number,bo.name as buyerOrg, round((buyer_price/100)*msrp,2) as showroomPrice, 
+   round((price/100)*msrp,2) as buyerSpecificPrice 
+from dealer_product_base d join product p on d.product_id = p.id 
+join manufacturer m on p.manufacturer_id = m.id
+join buyer_product_price b on b.dealer_product_base_id = d.id
+join buyer_org bo on b.buyer_org_id = bo.id
+join dealer_org o on d.dealer_org_id = o.id 
+where o.name = 'McCullum'
+order by m.short_name, bo.name
