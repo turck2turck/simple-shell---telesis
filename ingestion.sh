@@ -20,14 +20,14 @@ then
   ps -p $PID > /dev/null 2>&1
   if [ $? -eq 0 ]
   then
-    echo "export or rsync process already running"
+    echo "Export or sync process already running"
     exit 1
   else
     ## Process not found assume not running
     echo $$ > $PIDFILE
     if [ $? -ne 0 ]
     then
-      echo "Could not create incremental export PID file"
+      echo "Could not create export PID file"
       exit 1
     fi
   fi
@@ -35,7 +35,7 @@ else
   echo $$ > $PIDFILE
   if [ $? -ne 0 ]
   then
-    echo "Could not create incremental-export PID file"
+    echo "Could not create export PID file"
     exit 1
   fi
 fi
@@ -65,14 +65,19 @@ aterocan_exports=''
 atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 aterocan_exports=$((cd /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
-echo "--------------------------------------------------------"
+echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}.out
 echo "These are the atero exports: ${atero_exports}" >>${LOGDIR}/${PGM_NAME}.out
-echo "These are the aterocan exports: ${aterocan_exports}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
+echo "These are the aterocan exports: ${aterocan_exports}" >>${LOGDIR}/${PGM_NAME}.out
+echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}.out
+
+echo "These are the atero exports: ${atero_exports}" 
+echo "These are the aterocan exports: ${aterocan_exports}" 
 
 for export_dir in ${atero_exports}
 do
-   echo "Processing export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-   cp products.csv ~/export/atero/
+echo "Working on: ${export_dir}"
+   echo "Processing US export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
+   cp /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com/${export_dir}/products.csv ~/export/atero/products.csv
    sleep 10
    . ~/scripts/data-team/upsert_product.sh
 done
@@ -80,8 +85,9 @@ done
  
 for canexport_dir in ${aterocan_exports}
 do
+echo "Working on: ${canexport_dir}"
    echo "Processing Canada export: ${canexport_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-   cp products.csv ~/export/atero/
+   cp /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwork_com/${export_dir}/products.csv ~/export/atero/products.csv
    sleep 10
    . ~/scripts/data-team/upsert_products.sh
 done

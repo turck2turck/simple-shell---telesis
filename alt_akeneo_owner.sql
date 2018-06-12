@@ -1,1 +1,1 @@
-ALTER TABLE loading.akeneo OWNER to ateroprod_admin;
+ALTER TABLE loading.akeneo OWNER to atero_admin;
