@@ -8,36 +8,10 @@ umask 137
 # Author:  J.Turck
 # User:
 #
-# Purpose: Execute the loading and updateing of the Atero database.
+# Purpose: Execute the loading and updating of the Atero database.
 #
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
-PIDFILE=/home/ubuntu/atero_driver.pid
-
-#-----------------------------------------------
-#  Main:
-#-----------------------------------------------
-if [[ -s ${HOME}/.pwa ]]; then
-   . ${HOME}/.pwa
-else
-   echo ""
-   echo ""
-   echo "ERROR: password file ${HOME}/.pwa is empty or does not exist"
-   echo "       processing terminating now."
-   echo ""
-   echo ""
-   exit 99
-fi
-
-if [[ -f ${LOGDIR}/upsert_product.out ]]; then
-   mv ${LOGDIR}/upsert_product.out ${LOGDIR}/upsert_product.${DTS}
-fi
-
-echo "Insert and Update public.product on ${DTS} " > ${LOGDIR}/atero_driver.out
-echo "Insert and Update ERRORS for public.product on ${DTS} " > ${ELOGDIR}/atero_driver.err
-echo "HOST is: ${HOST}" >> ${LOGDIR}/atero_driver.out
-echo "USER is: ${USER}" >> ${LOGDIR}/atero_driver.out
-echo "Database is ${DATABASE}" >> ${LOGDIR}/atero_driver.out
+PIDFILE=/home/ubuntu/pids/export.pid
 
 if [ -f $PIDFILE ]
 then
@@ -45,13 +19,14 @@ then
   ps -p $PID > /dev/null 2>&1
   if [ $? -eq 0 ]
   then
-    echo "Atero process already running"
+    echo "Export or sync process already running"
     exit 1
   else
+    ## Process not found assume not running
     echo $$ > $PIDFILE
     if [ $? -ne 0 ]
     then
-      echo "Could not create incremental export PID file"
+      echo "Could not create export PID file"
       exit 1
     fi
   fi
@@ -59,21 +34,46 @@ else
   echo $$ > $PIDFILE
   if [ $? -ne 0 ]
   then
-    echo "Could not create incremental-export PID file"
+    echo "Could not create export PID file"
     exit 1
   fi
 fi
 
+export RUNENV=$1
+source /home/ubuntu/config/init.cfg
+export PGM_NAME=ingestion
 
-./${RUNDIR}/upsert_product.sh
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with the upsert_product.sh script."
-      exit 3
-   else
-      echo "Upsert process completed successfully." >> ${LOGDIR}/atero_driver.out
-      mv ${DATADIR}/products.csv ${ARCHDIR}/products.${DTS}
-   fi
+if [[ -s ${HOME}/.pwx ]]; then
+   . ${HOME}/.pwx
+else
+   echo ""
+   echo ""
+   echo "ERROR: password file ${HOME}/.pwx is empty or does not exist"
+   echo "       processing terminating now."
+   echo ""
+   echo ""
+   exit 99
+fi
+
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}_${RUNENV}.out
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
+
+#################################################################################################################
+
+# Remove zero byte files
+cd /home/ubuntu/export/bap; find . -type f -size 0M -name products.csv -exec dirname {} \; | xargs rm -rf
+
+# Execute incremental export
+. /home/ubuntu/akeneo-package/script/incremental-export.sh
+# Execute ingestion script DEMO
+. /home/ubuntu/scripts/data-team/ingestion.sh DEMO
+# Execute ingestion script STG
+. /home/ubuntu/scripts/data-team/ingestion.sh STG
+# Execute ingestion script PRD
+. /home/ubuntu/scripts/data-team/ingestion.sh PRD
+# Execute QA script
+# Execute s3 sync script
+# Execute arhive export script
 
 
-exit 0
+

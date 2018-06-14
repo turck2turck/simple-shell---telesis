@@ -1,8 +1,8 @@
 -- Insert into the public.buyer_product_price only.
 -- Read from loading.xls_buyer_price.
--- Run from PGAdmin
+-- Run from PGAdmin.
 
-select count(*) from loading.xls_buyer_price; --594
+select count(*) from loading.xls_buyer_price; --30
 select * from loading.xls_dealer_product_base;
 
 -- Any dups in the input file?
@@ -14,13 +14,12 @@ HAVING count(*) > 1
 -- Insert parent records
 insert into public.dealer_product_base (dealer_org_id, product_id, retail_hidden,retail_can_purchase,buyers_hidden, buyers_can_purchase,created_at, created_by)
 select x.dealer_org_id, p.id, 'false', 'true', 'false', 'true', current_timestamp, 1 
-from public.product p, loading.xls_dealer_product_base x, public.manufacturer m
+from public.product p, loading.xls_buyer_price x, public.manufacturer m
 where x.product_model_number = p.product_model_number 
 and x.mfr_abbr = m.mfr_abbr
 and p.manufacturer_id = m.id 
-and p.msrp <> 1
-ON CONFLICT (dealer_org_id, product_id) DO UPDATE
-set product_id=EXCLUDED.product_id, net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price;
+ON CONFLICT (dealer_org_id, product_id) DO NOTHING
+; --0 
 
 -- Insert child records
 insert into public.buyer_product_price (buyer_org_id,dealer_product_base_id,dealer_org_id,price,hidden_override,can_purchase_override)
@@ -31,9 +30,8 @@ where x.mfr_abbr = m.mfr_abbr
   and x.dealer_org_id = d.dealer_org_id 
   and p.manufacturer_id = m.id 
   and d.product_id = p.id  
-  and p.msrp <> 1
 ON CONFLICT (buyer_org_id,dealer_product_base_id,dealer_org_id)  DO UPDATE
-set buyer_org_id=EXCLUDED/buyer_org_id, dealer_product_base_id=EXCLUDED.dealer_product_base,dealer_org_id=EXCLUDED.dealer_org_id;
+set price=EXCLUDED.price; --30
    
 -- Not found
                                          
@@ -43,25 +41,4 @@ where product_model_number not in (select p.product_model_number
 		   where x.mfr_abbr = m.mfr_abbr  
   		 and x.product_model_number = p.product_model_number
   		 and x.dealer_org_id = d.dealer_org_id 
-  		 and p.manufacturer_id = m.id
-		 and p.msrp <> 1)  ;
-
--- Verify pricing Sample:
-
-select m.short_name, product_model_number, round((buyer_price/100)*msrp,2) as showroomPrice 
-from dealer_product_base d
-   join product p on d.product_id = p.id
-   join dealer_org o on d.dealer_org_id = o.id 
-   join manufacturer m on p.manufacturer_id = m.id
-where o.name = 'McCullum'
-order by m.short_name
-
-select m.short_name, product_model_number,bo.name as buyerOrg, round((buyer_price/100)*msrp,2) as showroomPrice, 
-   round((price/100)*msrp,2) as buyerSpecificPrice 
-from dealer_product_base d join product p on d.product_id = p.id 
-join manufacturer m on p.manufacturer_id = m.id
-join buyer_product_price b on b.dealer_product_base_id = d.id
-join buyer_org bo on b.buyer_org_id = bo.id
-join dealer_org o on d.dealer_org_id = o.id 
-where o.name = 'McCullum'
-order by m.short_name, bo.name
+  		 and p.manufacturer_id = m.id)  ;
