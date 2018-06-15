@@ -55,7 +55,6 @@ do
    mv ~/export/bap/atero_catalog_epurchasingnetwork_com${export_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
 done
 
-
 for canexport_dir in ${aterocan_exports}
 do
    export_name=`echo ${canexport_dir}`
@@ -63,8 +62,5 @@ do
    mv ~/export/bap/aterocan_catalog_epurchasingnetwork_com${export_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
 done
 
-
 rm $PIDFILE
-
-exit 0
 

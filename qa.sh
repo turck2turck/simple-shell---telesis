@@ -67,7 +67,7 @@ function run_qa () {
    echo " " >>${RUNLOG}
    echo "-------------------------------------------------------" >>${RUNLOG}
    echo "The error log ~/elogs/upsert_product.err: " >>${RUNLOG}
-   cat ~/elogs/upsert_product.err >> ${RUNLOG}
+   cat ~/elogs/upsert_product_${RUNENV}.err >> ${RUNLOG}
    echo "-------------------------------------------------------" >>${RUNLOG}
    echo " " >>${RUNLOG}
    
@@ -119,4 +119,3 @@ echo "HERE in CAN."
 done
 
 rm $PIDFILE
-exit 0

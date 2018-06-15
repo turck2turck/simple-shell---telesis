@@ -96,4 +96,3 @@ done
 
 rm $PIDFILE
 
-exit 0

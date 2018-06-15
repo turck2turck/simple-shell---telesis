@@ -19,7 +19,7 @@ where x.product_model_number = p.product_model_number
 and x.mfr_abbr = m.mfr_abbr
 and p.manufacturer_id = m.id 
 ON CONFLICT (dealer_org_id, product_id) DO UPDATE
-set product_id=EXCLUDED.product_id, net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price
+set net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price
 
 --- Not found
 select * from loading.xls_dealer_product_base x
@@ -30,3 +30,11 @@ where not exists (select p.product_model_number
   		  and x.dealer_org_id = d.dealer_org_id 
           and p.id = d.product_id
   		  and p.manufacturer_id = m.id) ;
+
+--- Add buyer_price after net cost is set 
+update dealer_product_base d
+set buyer_price = (1+0.15)*d.net_cost, updated_at=current_timestamp, updated_by=31
+from product p
+where p.id = product_id
+and dealer_org_id = 8
+and net_cost is NOT NULL
