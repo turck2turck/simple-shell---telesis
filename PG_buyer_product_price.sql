@@ -3,7 +3,7 @@
 -- Run from PGAdmin.
 
 select count(*) from loading.xls_buyer_price; --30
-select * from loading.xls_dealer_product_base;
+select * from loading.xls_buyer_price;
 
 -- Any dups in the input file?
 select product_model_number, dealer_org_id, buyer_org_id, mfr_abbr, count(*)
@@ -29,16 +29,20 @@ where x.mfr_abbr = m.mfr_abbr
   and x.product_model_number = p.product_model_number 
   and x.dealer_org_id = d.dealer_org_id 
   and p.manufacturer_id = m.id 
-  and d.product_id = p.id  
+  and d.product_id = p.id 
+  and p.msrp <> 1 
 ON CONFLICT (buyer_org_id,dealer_product_base_id,dealer_org_id)  DO UPDATE
 set price=EXCLUDED.price; --30
-   
+  
 -- Not found
-                                         
-select * from loading.xls_buyer_price 
-where product_model_number not in (select p.product_model_number   
-		from public.dealer_product_base d, public.product p, public.manufacturer m, loading.xls_buyer_price x
-		   where x.mfr_abbr = m.mfr_abbr  
-  		 and x.product_model_number = p.product_model_number
-  		 and x.dealer_org_id = d.dealer_org_id 
-  		 and p.manufacturer_id = m.id)  ;
+select * from loading.xls_buyer_price
+where product_model_number not in (select p.product_model_number
+                from public.dealer_product_base d, public.product p, public.manufacturer m, loading.xls_buyer_price x, public.buyer_product_price b
+                where x.mfr_abbr = m.mfr_abbr
+                  and x.product_model_number = p.product_model_number 
+	          and p.manufacturer_id = m.id
+                  and x.dealer_org_id = d.dealer_org_id 
+                  and b.buyer_org_id = x.buyer_org_id 
+                  and b.dealer_org_id = x.dealer_org_id 
+                  and b.dealer_product_base_id = d.id 
+                  ); 

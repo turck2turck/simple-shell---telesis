@@ -14,10 +14,6 @@ umask 137
 export DEALER=$1
 source /home/ubuntu/config/init.cfg
 export PGM_NAME=su_dealer
-export SQL_PGM1=ins_su_dealer_org.sql
-export SQL_PGM2=ins_su_application_user.sql
-export SQL_PGM3=ins_su_dealer.sql
-export SQL_PGM4=ins_su_manufacturer_dealer_assoc.sql
 
 if [[ -s ${HOME}/.pwx ]]; then
  . ${HOME}/.pwx
@@ -38,83 +34,66 @@ source ${CONFIG}/${DEALER}.cfg
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${QALOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${ELOGDIR}/${PGM_NAME}.err
 
+
+export SQL_STEP=ins_su_dealer_org
 echo "insert into public.dealer_org (name,logo,message,support_email,is_credit_enabled,credit_period_value,credit_amount,created_at,created_by,dealer_display_name) 
-     values (${D_NAME},${D_LOGO},${D_MESSAGE},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME}) ON CONFLICT (name) DO UPDATE 
-set logo=EXCLUDED.logo,message=EXCLUDED.message,support_email=EXCLUDED.support_email,is_credit_enabled=EXCLUDED.is_credit_enabled,credit_period_value=EXCLUDED.credit_period_value,credit_amount=EXCLUDED.credit_amount,updated_at=current_timestamp,1; " > ${SQLDIR}/${SQL_PGM1}
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM1} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+      values (${D_NAME},${D_LOGO},${D_MESSAGE},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME}) ON CONFLICT (name) DO NOTHING " > ${SQLDIR}/${SQL_STEP}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ${SQL_PGM1} script."
+      echo "Error with ${SQL_STEP}.sql"
+      curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
       exit 3
    fi
 
+export SQL_STEP=ins_su_application_user
 echo "insert into public.application_user (email, first_name, last_name, email_confirmed, password_hash, user_role, created_at, created_by)
-      values (${EMAIL},${FIRST_NAME},${LAST_NAME},'N',NULL,'DEALER_ADMIN',current_timestamp,1); " > ${SQLDIR}/${SQL_PGM2}
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM2} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+      values (${EMAIL},${FIRST_NAME},${LAST_NAME},'N',NULL,'DEALER_ADMIN',current_timestamp,1); " > ${SQLDIR}/${SQL_STEP}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_PGM2} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ${SQL_PGM2} script."
+      echo "Error with ${SQL_STEP}.sql"
+      curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
       exit 3
    fi
 
+export SQL_STEP=ins_su_dealer
 echo "insert into public.dealer (application_user_id,dealer_org_id,is_banned,created_at,created_by)
       select a.id,d.id,'false',current_timestamp,'1'
       from public.application_user a, public.dealer_org d
-      where d.name=${D_NAME} and a.email=${EMAIL} " > ${SQLDIR}/${SQL_PGM3}
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM3} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+      where d.name=${D_NAME} and a.email=${EMAIL} " > ${SQLDIR}/${SQL_STEP}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_PGM3} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ${SQL_PGM3} script."
+      echo "Error with the ${SQL_STEP}.sql"
+      curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
       exit 3
    fi
 
+export SQL_STEP=del_manufacturer_dealer_assoc
 echo "delete from public.manufacturer_dealer_assoc 
-      where dealer_org_id in (select id from public.dealer_org where d.name=${D_NAME} "> ${SQLDIR}/${SQL_PGM4}
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM4} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+      where dealer_org_id in (select id from public.dealer_org where d.name=${D_NAME} "> ${SQLDIR}/${SQL_STEP}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
-      echo "Error with the ${SQL_PGM4} script."
+      echo "Error with the ${SQL_STEP}.sql"
+      curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
       exit 3
    fi	
 
+export SQL_STEP=ins_manufacturer_dealer_assoc
 cat ${CONFIG}/${DEALER}_mfr.cfg |while read i 
 do
    echo "insert into public.manufacturer_dealer_assoc (manufacturer_id,dealer_org_id)
          select m.id, d.id
          from public.manufacturer m, public.dealer_org d
-         where d.name=${D_NAME} and m.mfr_abbr=${i}" > ${SQLDIR}/${SQL_PGM5}
-   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM5} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+         where d.name=${D_NAME} and m.mfr_abbr=${i}" > ${SQLDIR}/${SQL_STEP}.sql
+   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
    es=${?}
       if [[ ${es} -ne 0 ]]; then
-         echo "Error with the ${SQL_PGM5} script."
+         echo "Error with the ${SQL_STEP}.sql"
          exit 3
       fi	
 done
-
-#Adjust for only 1 dealer in DEMO (showcase).
-#cp ~/config/init_demo.cfg ~/config/init.cfg
-
-#echo "truncate table public.manufacturer_dealer_assoc"> ${SQLDIR}/${SQL_PGM5}
-#   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM5} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
-#   es=${?}
-#      if [[ ${es} -ne 0 ]]; then
-#         echo "Error with the ${SQL_PGM5} script."
-#         exit 3
-#      fi
-#
-
-#cat ${CONFIG}/${DEALER}_mfr.cfg |while read i
-#do
-#   echo "insert into public.manufacturer_dealer_assoc (manufacturer_id,dealer_org_id)
-#         select m.id, d.id
-#         from public.manufacturer m, public.dealer_org" > ${SQLDIR}/${SQL_PGM6} psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM4} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
-#   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -f ${SQLDIR}/${SQL_PGM6} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
-#   es=${?}
-#      if [[ ${es} -ne 0 ]]; then
-#         echo "Error with the ${SQL_PGM6} script."
-#         exit 3
-#      fi
-#done
-
 
 exit 0

@@ -4,13 +4,3 @@ unlisten
 ins_akeneo
 alt_akeneo_add
 upd_akeneo
-ins_akeneo_err
-ins_product_product
-ins_product_accessory
-ins_option_product
-ins_variant_product
-ins_product_option_assoc
-ins_option_attachment
-ins_variant_attachment
-ins_product_option_assoc
-alt_akeneo_drop

@@ -40,7 +40,7 @@ echo "UNLISTEN tblobs_default_channel;" > ${RUNDIR}/unlisten.sql
 
 cat ${RUNDIR}/upsert_product_ss.txt |while read step
 do
-echo ${step}
+echo "Running... ${step}.sql " >> ${LOGDIR}/${PGM_NAME}_${RUNENV}.out
    export SQL_STEP=${step}
    psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -v "ON_ERROR_STOP=1" -f ${RUNDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}_${RUNENV}.out 2>> ${ELOGDIR}/${PGM_NAME}_${RUNENV}.err
    es=${?}

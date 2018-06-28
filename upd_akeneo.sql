@@ -33,3 +33,7 @@ UPDATE loading.akeneo SET post_unit_of_measure = 'Individually' where selling_un
 UPDATE loading.akeneo SET post_unit_of_measure = 'By Case' where selling_unit = 'selling_unit_case' and enabled='1'; 
 
 UPDATE loading.akeneo SET post_msrp = 1 WHERE post_msrp='0';
+
+UPDATE loading.akeneo SET display_name = REPLACE(groups,'_',' ') where item_type = 'item_type_variant' ;
+UPDATE loading.akeneo SET display_name = REPLACE(display_name,',','') where item_type = 'item_type_variant' ;
+

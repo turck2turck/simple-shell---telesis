@@ -51,15 +51,15 @@ aterocan_exports=$((cd /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwo
 for export_dir in ${atero_exports}
 do
    export_name=`echo ${export_dir}`
-   echo "products.csv file moved to: ~/export/atero/archive/${export_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
+   echo "products.csv file moved to: ~/export/atero/archive${export_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
    mv ~/export/bap/atero_catalog_epurchasingnetwork_com${export_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
 done
 
 for canexport_dir in ${aterocan_exports}
 do
    export_name=`echo ${canexport_dir}`
-   echo "products.csv file moved to: ~/export/atero/archive/${export_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
-   mv ~/export/bap/aterocan_catalog_epurchasingnetwork_com${export_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
+   echo "products.csv file moved to: ~/export/atero/archive${canexport_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
+   mv ~/export/bap/aterocan_catalog_epurchasingnetwork_com${canexport_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
 done
 
 rm $PIDFILE
