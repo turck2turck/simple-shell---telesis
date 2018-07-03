@@ -60,34 +60,20 @@ fi
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}_${RUNENV}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}_${RUNENV}.err
 atero_exports=''
-aterocan_exports=''
 
 atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
-aterocan_exports=$((cd /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
 echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
 echo "These are the atero exports: ${atero_exports}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-echo "These are the aterocan exports: ${aterocan_exports}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
 echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
 
 echo "These are the atero exports: ${atero_exports}" 
-echo "These are the aterocan exports: ${aterocan_exports}" 
 
 for export_dir in ${atero_exports}
 do
    echo "Working on: ${export_dir}"
    echo "Processing US export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-   cp /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com/${export_dir}/products.csv ~/export/atero/products.csv
-   sleep 10
-   . ~/scripts/data-team/upsert_product.sh
-done
-
- 
-for canexport_dir in ${aterocan_exports}
-do
-   echo "Working on: ${canexport_dir}"
-   echo "Processing Canada export: ${canexport_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-   cp /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwork_com/${canexport_dir}/products.csv ~/export/atero/products.csv
+   cp /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
    sleep 10
    . ~/scripts/data-team/upsert_product.sh
 done

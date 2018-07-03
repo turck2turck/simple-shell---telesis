@@ -2,7 +2,7 @@
 -- Read from loading.xls_buyer_price.
 -- Run from PGAdmin.
 
-select count(*) from loading.xls_buyer_price; --30
+select count(*) from loading.xls_buyer_price; 
 select * from loading.xls_buyer_price;
 
 -- Any dups in the input file?
@@ -32,7 +32,7 @@ where x.mfr_abbr = m.mfr_abbr
   and d.product_id = p.id 
   and p.msrp <> 1 
 ON CONFLICT (buyer_org_id,dealer_product_base_id,dealer_org_id)  DO UPDATE
-set price=EXCLUDED.price; --30
+set price=EXCLUDED.price , update_at=current_timestamp, update_by=1; 
   
 -- Not found
 select * from loading.xls_buyer_price

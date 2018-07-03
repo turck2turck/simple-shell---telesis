@@ -12,7 +12,6 @@ umask 137
 #
 ###########################################################################################
 source /home/ubuntu/config/init.cfg
-export RUN_THIS=$1
 export PGM_NAME=check_duplicate_skus
 
 if [[ -s ${HOME}/.pwx ]]; then
@@ -37,8 +36,6 @@ es=${?}
       echo "Error with the ${RUN_THIS} script."
       exit 3
    fi
-
-
 
 function post_to_slack () {
   # format message as a code block ```${msg}```

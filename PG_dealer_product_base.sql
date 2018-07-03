@@ -5,11 +5,10 @@
 select count(*) from loading.xls_dealer_product_base; 
 select * from loading.xls_dealer_product_base;
 
--- Any dups in the input file?
-select product_model_number, dealer_org_id, count(*)
+select product_model_number, mfr_abbr, dealer_org_id, count(*)
 from loading.xls_dealer_product_base
-group by product_model_number, dealer_org_id
-HAVING count(*) > 1; 
+group by product_model_number, mfr_abbr, dealer_org_id
+HAVING count(*) > 1;
 
 -- Insert records
 insert into public.dealer_product_base (dealer_org_id, product_id, net_cost, buyer_price, retail_hidden, retail_can_purchase, buyers_hidden, buyers_can_purchase,created_at, created_by)
@@ -20,7 +19,7 @@ and x.mfr_abbr = m.mfr_abbr
 and p.manufacturer_id = m.id 
 and p.msrp <> 1
 ON CONFLICT (dealer_org_id, product_id) DO UPDATE
-set net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price
+set net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price, update_at=current_timestamp, update_by=1
 
 --- Not found
 select * from loading.xls_dealer_product_base x
@@ -35,7 +34,7 @@ where not exists (select p.product_model_number
 --- Add buyer_price after net cost is set 
 --- Add buyer_price after net cost is set
 update dealer_product_base d
-set buyer_price = (1+.527)*d.net_cost, updated_at=current_timestamp, updated_by=31
+set buyer_price = (1+.527)*d.net_cost, updated_at=current_timestamp, updated_by=1
 from product p, manufacturer m
 where p.id = product_id 
 and p.manufacturer_id = m.id 
