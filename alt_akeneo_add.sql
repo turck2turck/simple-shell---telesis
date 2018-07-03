@@ -16,4 +16,4 @@ ALTER TABLE loading.akeneo ADD COLUMN post_msrp numeric(12,2);
 ALTER TABLE loading.akeneo ADD COLUMN post_depth numeric(10,3);
 ALTER TABLE loading.akeneo ADD COLUMN post_shipping_weight numeric(10,3);
 ALTER TABLE loading.akeneo ADD COLUMN post_unit_of_measure character varying(50) COLLATE pg_catalog."default";
-ALTER TABLE loading.akeneo ADD COLUMN display_name character varying(50) COLLATE pg_catalog."default";
+ALTER TABLE loading.akeneo ADD COLUMN display_name character varying(100) COLLATE pg_catalog."default";

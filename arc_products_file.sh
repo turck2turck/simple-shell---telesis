@@ -46,21 +46,14 @@ echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
 atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
-aterocan_exports=$((cd /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
 for export_dir in ${atero_exports}
 do
    export_name=`echo ${export_dir}`
-   echo "products.csv file moved to: ~/export/atero/archive${export_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
+   echo "products.csv file moved to: ~/export/atero/archive${export_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
    mv ~/export/bap/atero_catalog_epurchasingnetwork_com${export_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
 done
 
-for canexport_dir in ${aterocan_exports}
-do
-   export_name=`echo ${canexport_dir}`
-   echo "products.csv file moved to: ~/export/atero/archive${canexport_name}.products.csv.${DTS}" >>${LOGDIR}/${PGM_NAME}.out
-   mv ~/export/bap/aterocan_catalog_epurchasingnetwork_com${canexport_dir}/products.csv ~/export/atero/archive/${export_name}.products.csv.${DTS}
-done
 
 rm $PIDFILE
 

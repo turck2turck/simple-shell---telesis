@@ -7,7 +7,7 @@ CREATE TABLE loading.akeneo
     enabled boolean,
     family character varying(255) COLLATE pg_catalog."default",
     groups character varying(255) COLLATE pg_catalog."default",
-    atero_cat2 character varying(50) COLLATE pg_catalog."default",
+    atero_cat2 character varying(75) COLLATE pg_catalog."default",
     avalara_freight_code character varying(255) COLLATE pg_catalog."default",
     avalara_tax_code character varying(255) COLLATE pg_catalog."default",
     base_name character varying(255) COLLATE pg_catalog."default",
