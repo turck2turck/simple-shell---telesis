@@ -19,7 +19,7 @@ and x.mfr_abbr = m.mfr_abbr
 and p.manufacturer_id = m.id 
 and p.msrp <> 1
 ON CONFLICT (dealer_org_id, product_id) DO UPDATE
-set net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price, update_at=current_timestamp, update_by=1
+set net_cost=EXCLUDED.net_cost, buyer_price=EXCLUDED.buyer_price, updated_at=current_timestamp, updated_by=1
 
 --- Not found
 select * from loading.xls_dealer_product_base x

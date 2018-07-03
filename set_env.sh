@@ -15,15 +15,14 @@ export RUN_ENV=$1
 export HOME=/home/ubuntu/
 export CONFIG=${HOME}/config
 
-run_env=$1
 
-if [[ ${run_env} == DEV ]]; then
+if [[ ${RUN_ENV} == DEV ]]; then
    cp ${CONFIG}/init_dev.cfg ${CONFIG}/init.cfg
    cp ${HOME}/.pwd ${HOME}/.pwx
    cat ${CONFIG}/init.cfg
 fi
 
-if [[ ${run_env} == STG ]]; then
+if [[ ${RUN_ENV} == STG ]]; then
    cp ${CONFIG}/init_stg.cfg ${CONFIG}/init.cfg
    cp ${HOME}/.pws ${HOME}/.pwx
    cat ${CONFIG}/init.cfg

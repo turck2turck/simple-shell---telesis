@@ -20,7 +20,7 @@ echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 ###########################################################################################
 
 # Execute incremental export
-/home/ubuntu/akeneo-package/script/incremental-export.sh
+/home/ubuntu/scripts/data-team/incremental-export.sh
 
 # Remove zero byte files
 cd /home/ubuntu/export/bap; find . -type f -size 0M -name products.csv -exec dirname {} \; | xargs rm -rf
@@ -35,7 +35,7 @@ cd /home/ubuntu/export/bap; find . -type f -size 0M -name products.csv -exec dir
 . /home/ubuntu/scripts/data-team/qa.sh PRD
 
 # Execute s3 sync script
-. /home/ubuntu/akeneo-package/script/sync-export.sh
+. /home/ubuntu/scripts/data-team/sync-export.sh PRD
 
 # Execute archive export script
 . /home/ubuntu/scripts/data-team/arc_products_file.sh
