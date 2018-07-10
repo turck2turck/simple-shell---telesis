@@ -11,8 +11,8 @@ umask 137
 # Purpose: Execute QA SQL.
 #
 ###########################################################################################
-export RUNENV=$1
-. ~/scripts/data-team/set_env.sh ${RUNENV}
+export RUN_ENV=$1
+. ~/scripts/data-team/set_env.sh ${RUN_ENV}
 source /home/ubuntu/config/init.cfg
 export PGM_NAME=qa
 export akeneo_export=$1
@@ -67,7 +67,7 @@ function run_qa () {
    echo " " >>${RUNLOG}
    echo "-------------------------------------------------------" >>${RUNLOG}
    echo "The error log ~/elogs/upsert_product.err: " >>${RUNLOG}
-   cat ~/elogs/upsert_product_${RUNENV}.err >> ${RUNLOG}
+   cat ~/elogs/upsert_product_${RUN_ENV}.err >> ${RUNLOG}
    echo "-------------------------------------------------------" >>${RUNLOG}
    echo " " >>${RUNLOG}
    
@@ -107,14 +107,6 @@ echo "These are the atero exports: ${atero_exports}"
 for export_dir in ${atero_exports}
 do
 echo "HERE."
-   run_qa
-done
-
-aterocan_exports=$((cd /home/ubuntu/export/bap/aterocan_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
-echo "These are the atero can exports: ${aterocan_exports}"
-for export_dir in ${aterocan_exports}
-do
-echo "HERE in CAN."
    run_qa
 done
 

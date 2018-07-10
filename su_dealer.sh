@@ -36,8 +36,8 @@ echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${ELOGDIR}/${P
 
 
 export SQL_STEP=ins_su_dealer_org
-echo "insert into public.dealer_org (name,logo,message,support_email,is_credit_enabled,credit_period_value,credit_amount,created_at,created_by,dealer_display_name) 
-      values (${D_NAME},${D_LOGO},${D_MESSAGE},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME}) ON CONFLICT (name) DO NOTHING " > ${SQLDIR}/${SQL_STEP}.sql
+echo "insert into public.dealer_org (name,logo,message,support_email,is_credit_enabled,credit_period_value,credit_amount,created_at,created_by,dealer_display_name, public_retail_site) 
+      values (${D_NAME},${D_LOGO},${D_MESSAGE},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME},'public') ON CONFLICT (name) DO NOTHING " > ${SQLDIR}/${SQL_STEP}.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
@@ -48,8 +48,8 @@ es=${?}
 
 export SQL_STEP=ins_su_application_user
 echo "insert into public.application_user (email, first_name, last_name, email_confirmed, password_hash, user_role, created_at, created_by)
-      values (${EMAIL},${FIRST_NAME},${LAST_NAME},'N',NULL,'DEALER_ADMIN',current_timestamp,1); " > ${SQLDIR}/${SQL_STEP}.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_PGM2} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+      values (${EMAIL},${FIRST_NAME},${LAST_NAME},'N',NULL,'MFR_REP',current_timestamp,1); " > ${SQLDIR}/${SQL_STEP}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with ${SQL_STEP}.sql"
@@ -62,7 +62,7 @@ echo "insert into public.dealer (application_user_id,dealer_org_id,is_banned,cre
       select a.id,d.id,'false',current_timestamp,'1'
       from public.application_user a, public.dealer_org d
       where d.name=${D_NAME} and a.email=${EMAIL} " > ${SQLDIR}/${SQL_STEP}.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_PGM3} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
       echo "Error with the ${SQL_STEP}.sql"
@@ -72,7 +72,7 @@ es=${?}
 
 export SQL_STEP=del_manufacturer_dealer_assoc
 echo "delete from public.manufacturer_dealer_assoc 
-      where dealer_org_id in (select id from public.dealer_org where d.name=${D_NAME} "> ${SQLDIR}/${SQL_STEP}.sql
+      where dealer_org_id in (select id from public.dealer_org where name=${D_NAME}) "> ${SQLDIR}/${SQL_STEP}.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
@@ -88,7 +88,7 @@ do
          select m.id, d.id
          from public.manufacturer m, public.dealer_org d
          where d.name=${D_NAME} and m.mfr_abbr=${i}" > ${SQLDIR}/${SQL_STEP}.sql
-   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP} >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+   psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
    es=${?}
       if [[ ${es} -ne 0 ]]; then
          echo "Error with the ${SQL_STEP}.sql"

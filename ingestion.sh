@@ -40,8 +40,8 @@ else
   fi
 fi
 
-export RUNENV=$1
-. ~/scripts/data-team/set_env.sh ${RUNENV}
+export RUN_ENV=$1
+. ~/scripts/data-team/set_env.sh ${RUN_ENV}
 source /home/ubuntu/config/init.cfg
 export PGM_NAME=ingestion
 
@@ -57,26 +57,52 @@ else
    exit 99
 fi
 
-echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}_${RUNENV}.err
-atero_exports=''
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}_${RUN_ENV}.err
 
-atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
+echo "This is ${RUN_ENV}"
 
-echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-echo "These are the atero exports: ${atero_exports}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
+if [[ ${RUN_ENV} == PRD ]] || [[ ${RUN_ENV} == DEMO ]] ; then
+   atero_exports=''
 
-echo "These are the atero exports: ${atero_exports}" 
+   atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
-for export_dir in ${atero_exports}
-do
-   echo "Working on: ${export_dir}"
-   echo "Processing US export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-   cp /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
-   sleep 10
-   . ~/scripts/data-team/upsert_product.sh
-done
+   echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+   echo "These are the atero exports: ${atero_exports}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+   echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+
+   echo "These are the atero exports: ${atero_exports}" 
+
+   for export_dir in ${atero_exports}
+   do
+      echo "Working on: ${export_dir}"
+      echo "Processing US export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+      cp /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
+      sleep 10
+      . ~/scripts/data-team/upsert_product.sh
+   done
+fi
+
+if [[ ${RUN_ENV} == STG ]]; then
+   staging_exports=''
+
+   staging_exports=$((cd /home/ubuntu/export/bap/staging_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
+
+   echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+   echo "These are the atero exports: ${staging_exports}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+   echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+
+   echo "These are the atero exports: ${staging_exports}"
+
+   for export_dir in ${staging_exports}
+   do
+      echo "Working on: ${export_dir}"
+      echo "Processing US export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+      cp /home/ubuntu/export/bap/staging_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
+      sleep 10
+      . ~/scripts/data-team/upsert_product.sh
+   done
+fi
 
 . ~/scripts/data-team/check_duplicate_skus.sh
 

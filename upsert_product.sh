@@ -31,8 +31,8 @@ fi
 ### Work with loading.akeneo
 #####################################################################################
 
-echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}_${RUNENV}.out
-echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}_${RUNENV}.err
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
+echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}_${RUN_ENV}.err
 
 echo "ALTER TABLE loading.akeneo OWNER to ${ATERO_OWNER};" > ${RUNDIR}/alt_akeneo_owner.sql
 echo " \COPY loading.akeneo FROM '${DATADIR}/products.csv' WITH DELIMITER AS ',' CSV HEADER NULL as ''" > ${RUNDIR}/ins_akeneo.sql
@@ -40,14 +40,14 @@ echo "UNLISTEN tblobs_default_channel;" > ${RUNDIR}/unlisten.sql
 
 cat ${RUNDIR}/upsert_product_ss.txt |while read step
 do
-echo "Running... ${step}.sql " >> ${LOGDIR}/${PGM_NAME}_${RUNENV}.out
+   echo "Running... ${step}.sql " >> ${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
    export SQL_STEP=${step}
-echo "The DB is: ${DATABASE}"
-   psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -v "ON_ERROR_STOP=1" -f ${RUNDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}_${RUNENV}.out 2>> ${ELOGDIR}/${PGM_NAME}_${RUNENV}.err
+   echo "The DB is: ${DATABASE}"
+   psql -h ${HOST} -U ${USER} -d ${DATABASE} -a -v "ON_ERROR_STOP=1" -f ${RUNDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out 2>> ${ELOGDIR}/${PGM_NAME}_${RUN_ENV}.err
    es=${?}
       if [[ ${es} -ne 0 ]]; then
-         echo "Error with ${SQL_STEP}.sql command." >> ${ELOGDIR}/${PGM_NAME}_${RUNENV}.err
-         curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
+         echo "Error with ${SQL_STEP}.sql command." >> ${ELOGDIR}/${PGM_NAME}_${RUN_ENV}.err
+         curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"HELLOOOOOO ERROR on ${DTS} in ${HOST} for database:${DATABASE} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
          exit 3
       fi
 done

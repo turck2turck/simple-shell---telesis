@@ -11,7 +11,7 @@ set +x
 # Purpose: Execute the loading and updating of the Atero database.
 #
 ###########################################################################################
-cp /home/ubuntu/config/init_dtg.cfg /home/ubuntu/config/init.cfg
+cp /home/ubuntu/config/init_stg.cfg /home/ubuntu/config/init.cfg
 source /home/ubuntu/config/init.cfg
 export PGM_NAME=atero_driver_stg
 
@@ -33,6 +33,8 @@ cd /home/ubuntu/export/bap; find . -type f -size 0M -name products.csv -exec dir
 # Execute s3 sync script
 . /home/ubuntu/scripts/data-team/sync-export.sh STG
 
+# Execute products.csv Archive
+. /home/ubuntu/scripts/data-team/arc_products_file.sh
 
 exit 0
 

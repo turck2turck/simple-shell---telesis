@@ -31,7 +31,7 @@ cd /home/ubuntu/export/bap; find . -type f -size 0M -name products.csv -exec dir
 . /home/ubuntu/scripts/data-team/ingestion.sh DEV
 
 # Execute s3 sync script
-. /home/ubuntu/scripts/data-team/sync-export.sh
+#. /home/ubuntu/scripts/data-team/sync-export.sh
 
 
 exit 0
