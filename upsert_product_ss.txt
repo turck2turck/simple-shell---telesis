@@ -7,6 +7,7 @@ upd_akeneo
 ins_akeneo_err
 ins_product_product
 ins_product_accessory
+ins_product_accessory_assoc
 ins_option_product
 ins_product_option_assoc
 ins_product_attachment

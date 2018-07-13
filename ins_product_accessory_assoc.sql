@@ -6,28 +6,28 @@ where p.product_hash = a.product_hash );
 
 create temporary table tmp_m AS (SELECT a.model_no AS PARENT_MODEL_NO, p.product_model_number AS PRODUCT_MODEL_NO, 
    p.id AS PARENT_ID, a.item_type
-     , split_part(a.epn_accessory_products, ';', 1) AS child_sku1
-     , split_part(a.epn_accessory_products, ';', 2) AS child_sku2
-     , split_part(a.epn_accessory_products, ';', 3) AS child_sku3
-     , split_part(a.epn_accessory_products, ';', 4) AS child_sku4
-     , split_part(a.epn_accessory_products, ';', 5) AS child_sku5
-     , split_part(a.epn_accessory_products, ';', 6) AS child_sku6
-     , split_part(a.epn_accessory_products, ';', 7) AS child_sku7
-     , split_part(a.epn_accessory_products, ';', 8) AS child_sku8
-     , split_part(a.epn_accessory_products, ';', 9) AS child_sku9
-     , split_part(a.epn_accessory_products, ';', 10) AS child_sku10
-     , split_part(a.epn_accessory_products, ';', 11) AS child_sku11
-     , split_part(a.epn_accessory_products, ';', 12) AS child_sku12
-     , split_part(a.epn_accessory_products, ';', 13) AS child_sku13
-     , split_part(a.epn_accessory_products, ';', 14) AS child_sku14
-     , split_part(a.epn_accessory_products, ';', 15) AS child_sku15
-     , split_part(a.epn_accessory_products, ';', 16) AS child_sku16
-     , split_part(a.epn_accessory_products, ';', 17) AS child_sku17
-     , split_part(a.epn_accessory_products, ';', 18) AS child_sku18
-     , split_part(a.epn_accessory_products, ';', 19) AS child_sku19
-     , split_part(a.epn_accessory_products, ';', 20) AS child_sku20
-     , split_part(a.epn_accessory_products, ';', 21) AS child_sku21
-     , split_part(a.epn_accessory_products, ';', 22) AS child_sku22
+     , split_part(a.epn_accessory_products, ',', 1) AS child_sku1
+     , split_part(a.epn_accessory_products, ',', 2) AS child_sku2
+     , split_part(a.epn_accessory_products, ',', 3) AS child_sku3
+     , split_part(a.epn_accessory_products, ',', 4) AS child_sku4
+     , split_part(a.epn_accessory_products, ',', 5) AS child_sku5
+     , split_part(a.epn_accessory_products, ',', 6) AS child_sku6
+     , split_part(a.epn_accessory_products, ',', 7) AS child_sku7
+     , split_part(a.epn_accessory_products, ',', 8) AS child_sku8
+     , split_part(a.epn_accessory_products, ',', 9) AS child_sku9
+     , split_part(a.epn_accessory_products, ',', 10) AS child_sku10
+     , split_part(a.epn_accessory_products, ',', 11) AS child_sku11
+     , split_part(a.epn_accessory_products, ',', 12) AS child_sku12
+     , split_part(a.epn_accessory_products, ',', 13) AS child_sku13
+     , split_part(a.epn_accessory_products, ',', 14) AS child_sku14
+     , split_part(a.epn_accessory_products, ',', 15) AS child_sku15
+     , split_part(a.epn_accessory_products, ',', 16) AS child_sku16
+     , split_part(a.epn_accessory_products, ',', 17) AS child_sku17
+     , split_part(a.epn_accessory_products, ',', 18) AS child_sku18
+     , split_part(a.epn_accessory_products, ',', 19) AS child_sku19
+     , split_part(a.epn_accessory_products, ',', 20) AS child_sku20
+     , split_part(a.epn_accessory_products, ',', 21) AS child_sku21
+     , split_part(a.epn_accessory_products, ',', 22) AS child_sku22
 FROM   loading.akeneo a, public.product p
 where a.epn_accessory_products is NOT NULL and a.model_no = p.product_model_number);
 
