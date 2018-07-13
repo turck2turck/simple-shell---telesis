@@ -31,6 +31,13 @@ where not exists (select p.product_model_number
                   and p.id = d.product_id
   		  and p.manufacturer_id = m.id) ;
 
+-- more not found
+create temporary table tmp_x as (select p.id from product p, dealer_product_base b where p.id = b.product_id and b.dealer_org_id = 12 )
+create temporary table tmp_xx as (select p.id from product p, loading.xls_dealer_product_base l, manufacturer m where p.product_model_number = l.product_model_number 
+								and l.mfr_abbr = m.mfr_abbr and p.manufacturer_id = m.id) 
+								
+select * from tmp_xx where id not in (select product_id from dealer_product_base where dealer_org_id = 12 )
+
 --- Add buyer_price after net cost is set 
 --- Add buyer_price after net cost is set
 update dealer_product_base d
