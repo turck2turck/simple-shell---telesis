@@ -28,8 +28,8 @@ create temporary table tmp_m AS (SELECT a.model_no AS PARENT_MODEL_NO, p.product
      , split_part(a.epn_accessory_products, ',', 20) AS child_sku20
      , split_part(a.epn_accessory_products, ',', 21) AS child_sku21
      , split_part(a.epn_accessory_products, ',', 22) AS child_sku22
-FROM   loading.akeneo a, public.product p
-where a.epn_accessory_products is NOT NULL and a.model_no = p.product_model_number);
+FROM   loading.akeneo a, public.product p , public.manufacturer m 
+where a.epn_accessory_products is NOT NULL and a.model_no = p.product_model_number and a.manufacturer_abbreviation = m.mfr_abbr and p.manufacturer_id = m.id);
 
 insert into product_accessory_assoc (parent_accessory_product_id, child_accessory_product_id)
 select m.Parent_id, p.id from tmp_m m, public.product p where m.child_sku1 = p.sku and m.child_sku1 is NOT NULL;

@@ -37,18 +37,7 @@ echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} for ${D_NAME}" > ${ELOGDIR}/${P
 
 export SQL_STEP=ins_su_dealer_org
 echo "insert into public.dealer_org (name,logo,message,support_email,is_credit_enabled,credit_period_value,credit_amount,created_at,created_by,dealer_display_name, public_retail_site) 
-      values (${D_NAME},${D_LOGO},${D_MESSAGE},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME},'public') ON CONFLICT (name) DO NOTHING " > ${SQLDIR}/${SQL_STEP}.sql
-psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
-es=${?}
-   if [[ ${es} -ne 0 ]]; then
-      echo "Error with ${SQL_STEP}.sql"
-      curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
-      exit 3
-   fi
-
-export SQL_STEP=ins_su_application_user
-echo "insert into public.application_user (email, first_name, last_name, email_confirmed, password_hash, user_role, created_at, created_by)
-      values (${EMAIL},${FIRST_NAME},${LAST_NAME},'N',NULL,'MFR_REP',current_timestamp,1); " > ${SQLDIR}/${SQL_STEP}.sql
+      values (${D_NAME},${D_LOGO},${D_MESSAGE},${D_SUPPORT_EMAIL},${D_IS_CREDIT},${D_CREDIT_PERIOD},${D_CREDIT_AMT},current_timestamp,1,${D_DISPLAY_NAME},'public') ON CONFLICT (name) DO NOTHING; " > ${SQLDIR}/${SQL_STEP}.sql
 psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
 es=${?}
    if [[ ${es} -ne 0 ]]; then
@@ -95,5 +84,16 @@ do
          exit 3
       fi	
 done
+
+export SQL_STEP=ins_su_application_user
+echo "insert into public.application_user (email, first_name, last_name, email_confirmed, password_hash, user_role, created_at, created_by)
+      values (${EMAIL},${FIRST_NAME},${LAST_NAME},'N',NULL,'DEALER_ADMIN',current_timestamp,1); " > ${SQLDIR}/${SQL_STEP}.sql
+psql -h ${HOST} -U ${USER} -d ${DATABASE} -t -v "ON_ERROR_STOP=1" -f ${SQLDIR}/${SQL_STEP}.sql >> ${LOGDIR}/${PGM_NAME}.out 2>>${ELOGDIR}/${PGM_NAME}.err
+es=${?}
+   if [[ ${es} -ne 0 ]]; then
+      echo "Error with ${SQL_STEP}.sql"
+      curl -X POST --data-urlencode "payload={\"channel\": \"#script-messages\", \"username\": \"webhookbot\", \"text\": \"ERROR on ${DTS} in ${HOST} - /elogs/${PGM_NAME}.err - Problem with ${SQL_STEP}.sql.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
+      exit 3
+   fi
 
 exit 0
