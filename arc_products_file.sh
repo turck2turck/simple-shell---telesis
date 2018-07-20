@@ -50,6 +50,10 @@ if [[ ${RUN_ENV} == STG ]]; then
    channel=staging
 fi
 
+if [[ ${RUN_ENV} == DEV ]]; then
+   channel=dev
+fi
+
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 

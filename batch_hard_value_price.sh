@@ -86,7 +86,7 @@ es=${?}
 export SQL_STEP=buyer_price_bpp
 echo "insert into public.buyer_product_price (buyer_org_id,dealer_product_base_id,dealer_org_id,price,hidden_override,can_purchase_override)
 select x.buyer_org_id,d.id,x.dealer_org_id,(x.price/p.msrp)*100,false,true
-from loading.batch_buyer_price_p x, public.dealer_product_base d, public.product p, public.manufacturer m
+from loading.batch_buyer_product_price_p x, public.dealer_product_base d, public.product p, public.manufacturer m
 where x.mfr_abbr = m.mfr_abbr and x.product_model_number = p.product_model_number and x.dealer_org_id = d.dealer_org_id and p.manufacturer_id = m.id 
   and d.product_id = p.id and p.msrp <> 1
 ON CONFLICT (buyer_org_id,dealer_product_base_id,dealer_org_id)  DO UPDATE set price=EXCLUDED.price ;  "> ${SQLDIR}/${SQL_STEP}.sql 
