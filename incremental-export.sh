@@ -1,9 +1,9 @@
 #!/bin/bash
-PIM_ROOT=/home/ubuntu/akeneo/pim-community-standard
-EPN_CONFIG=/home/ubuntu/akeneo-package/epn.cfg
+PIM_ROOT=${HOME}/akeneo/pim-community-standard
+EPN_CONFIG=${HOME}/akeneo-package/epn.cfg
 source $EPN_CONFIG
 export EPN_MFG_ID EPN_CHNL_LIST EPN_DOMAIN PIM_ROOT EPN_CONFIG
-PIDFILE=/home/ubuntu/pids/export.pid
+PIDFILE=${HOME}/pids/export.pid
 
 if [ -f $PIDFILE ]
 then
@@ -38,7 +38,7 @@ fi
 echo "incremental export job start bap:atero_catalog_epurchasingnetwork_com: $('date')"
 logger -t akeneo "incremental export job start atero_catalog_epurchasingnetwork_com"
 
-$PIM_ROOT/app/console akeneo:batch:job -c "{\"filters\":{\"data\":{\"0\":{\"field\":\"family.code\",\"operator\":\"IN\",\"value\":{\"0\":\"epn\"}},\"1\":{\"field\":\"enabled\",\"operator\":\"ALL\",\"value\":\"\"},\"2\":{\"field\":\"completeness\",\"operator\":\"GREATER OR EQUALS THAN ON ALL LOCALES\",\"value\":\"100\",\"context\":{\"locales\":{\"0\":\"en_US\"}}},\"3\":{\"field\":\"updated\",\"operator\":\"SINCE LAST JOB\",\"value\":\"epn_incremental_product_export_atero_catalog_epurchasingnetwork_com\"},\"4\":{\"field\":\"categories.code\",\"operator\":\"IN CHILDREN\",\"value\":{\"0\":\"atero_catalog_epurchasingnetwork_com\"}}},\"jobCode\":\"epn_incremental_product_export_atero_catalog_epurchasingnetwork_com\",\"structure\":{\"scope\":\"atero_catalog_epurchasingnetwork_com_channel\",\"locales\":{\"0\":\"en_US\"}}},\"filePath\":\"/home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com/export_`date +\%s`/products.csv\"}" epn_incremental_product_export_atero_catalog_epurchasingnetwork_com --env=prod > /home/ubuntu/akeneo/pim-community-standard/app/logs/epn_incremental_product_export_atero_catalog_epurchasingnetwork_com 2>&1
+$PIM_ROOT/app/console akeneo:batch:job -c "{\"filters\":{\"data\":{\"0\":{\"field\":\"family.code\",\"operator\":\"IN\",\"value\":{\"0\":\"epn\"}},\"1\":{\"field\":\"enabled\",\"operator\":\"ALL\",\"value\":\"\"},\"2\":{\"field\":\"completeness\",\"operator\":\"GREATER OR EQUALS THAN ON ALL LOCALES\",\"value\":\"100\",\"context\":{\"locales\":{\"0\":\"en_US\"}}},\"3\":{\"field\":\"updated\",\"operator\":\"SINCE LAST JOB\",\"value\":\"epn_incremental_product_export_atero_catalog_epurchasingnetwork_com\"},\"4\":{\"field\":\"categories.code\",\"operator\":\"IN CHILDREN\",\"value\":{\"0\":\"atero_catalog_epurchasingnetwork_com\"}}},\"jobCode\":\"epn_incremental_product_export_atero_catalog_epurchasingnetwork_com\",\"structure\":{\"scope\":\"atero_catalog_epurchasingnetwork_com_channel\",\"locales\":{\"0\":\"en_US\"}}},\"filePath\":\"${HOME}/export/bap/atero_catalog_epurchasingnetwork_com/export_`date +\%s`/products.csv\"}" epn_incremental_product_export_atero_catalog_epurchasingnetwork_com --env=prod > ${HOME}/akeneo/pim-community-standard/app/logs/epn_incremental_product_export_atero_catalog_epurchasingnetwork_com 2>&1
         echo "incremental export job finish bap:atero_catalog_epurchasingnetwork_com: $('date')"
         logger -t akeneo "incremental export job finish atero_catalog_epurchasingnetwork_com"
 #done

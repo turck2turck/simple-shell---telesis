@@ -12,7 +12,7 @@ umask 137
 #
 ###########################################################################################
 export DEALER=$1
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=showcase_dealer
 export SQL_PGM1=tru_manufacturer_dealer_assoc.sql
 export SQL_PGM4=ins_su_manufacturer_dealer_assoc.sql

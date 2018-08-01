@@ -15,7 +15,7 @@ umask 137
 # Sample:  $ ./net_cost_multiplier.sh millers 0.15
 # Note:    input file must have headers
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=net_cost_multiplier
 export DEALER=$1
 export MARKUP=$2

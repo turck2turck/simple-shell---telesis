@@ -11,7 +11,7 @@ umask 137
 # Purpose: insert or update records in the public.address table.
 # 
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 
 export PGM_NAME=upsert_address
 

@@ -11,7 +11,7 @@ umask 137
 # Purpose: Execute passed in SQL
 # 
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=del_products_by_mo
 export MFR_ABBR=$1
 

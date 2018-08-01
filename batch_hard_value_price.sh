@@ -13,7 +13,7 @@ umask 137
 #
 # Usage:   Called from cron.
 ###########################################################################################
-source /home/ubuntu/config/init_prd.cfg
+source ${HOME}/config/init_prd.cfg
 cp ${HOME}/.pwp ${HOME}/.pwx
 export PGM_NAME=batch_hard_value_price
 

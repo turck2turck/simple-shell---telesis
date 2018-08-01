@@ -11,7 +11,7 @@ umask 137
 # Purpose: Load the loading.manufacturer_address table
 # 
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=load_manufacturer_address
 export IN_TABLE=manufacturer_address
 

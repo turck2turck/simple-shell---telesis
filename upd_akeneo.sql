@@ -25,6 +25,13 @@ WHERE atero_cat2 = s.sub_category_name
   AND a.sub_category_id = s.id;
 
 UPDATE loading.akeneo SET post_shipping_weight = shipping_weight/per_case WHERE enabled='1';
+
+UPDATE loading.akeneo set post_shipping_weight =
+case 
+   when post_shipping_weight = 0 
+   then 0.11 
+ end
+ where post_shipping_weight < 0.001;
 UPDATE loading.akeneo SET post_msrp = price_usd/price_by_qty WHERE enabled='1';
 UPDATE loading.akeneo SET post_depth = length/per_case WHERE enabled='1' and uom_measurement='0';
 UPDATE loading.akeneo SET post_depth = length WHERE enabled='1' and uom_measurement='1';

@@ -12,7 +12,7 @@ umask 137
 #
 # Usage:   Called from cron.
 ###########################################################################################
-PIDFILE=/home/ubuntu/pids/export.pid
+PIDFILE=${HOME}/pids/export.pid
 
 if [ -f $PIDFILE ]
 then
@@ -42,7 +42,7 @@ fi
 
 export RUN_ENV=$1
 . ~/scripts/data-team/set_env.sh ${RUN_ENV}
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=ingestion
 
 if [[ -s ${HOME}/.pwx ]]; then
@@ -65,7 +65,7 @@ echo "This is ${RUN_ENV}"
 if [[ ${RUN_ENV} == PRD ]] || [[ ${RUN_ENV} == DEMO ]] ; then
    atero_exports=''
 
-   atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
+   atero_exports=$((cd ${HOME}/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
    echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
    echo "These are the atero exports: ${atero_exports}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
@@ -77,7 +77,7 @@ if [[ ${RUN_ENV} == PRD ]] || [[ ${RUN_ENV} == DEMO ]] ; then
    do
       echo "Working on: ${export_dir}"
       echo "Processing US export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
-      cp /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
+      cp ${HOME}/export/bap/atero_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
       sleep 10
       . ~/scripts/data-team/upsert_product.sh
    done
@@ -86,7 +86,7 @@ fi
 if [[ ${RUN_ENV} == STG ]]; then
    staging_exports=''
 
-   staging_exports=$((cd /home/ubuntu/export/bap/staging_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
+   staging_exports=$((cd ${HOME}/export/bap/staging_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
    echo "--------------------------------------------------------"  >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
    echo "These are the atero exports: ${staging_exports}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
@@ -98,7 +98,7 @@ if [[ ${RUN_ENV} == STG ]]; then
    do
       echo "Working on: ${export_dir}"
       echo "Processing US export: ${export_dir}" >>${LOGDIR}/${PGM_NAME}_${RUN_ENV}.out
-      cp /home/ubuntu/export/bap/staging_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
+      cp ${HOME}/export/bap/staging_catalog_epurchasingnetwork_com/${export_dir}/products.csv ${DATADIR}/products.csv
       sleep 10
       . ~/scripts/data-team/upsert_product.sh
    done

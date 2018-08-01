@@ -13,7 +13,7 @@ umask 137
 ###########################################################################################
 export RUN_ENV=$1
 . ~/scripts/data-team/set_env.sh ${RUN_ENV}
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=qa
 export akeneo_export=$1
 
@@ -32,7 +32,7 @@ fi
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
 function check_pid() {
-PIDFILE=/home/ubuntu/pids/export.pid
+PIDFILE=${HOME}/pids/export.pid
 
 if [ -f $PIDFILE ]
 then
@@ -102,7 +102,7 @@ function run_qa () {
 }
 
 check_pid 
-atero_exports=$((cd /home/ubuntu/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
+atero_exports=$((cd ${HOME}/export/bap/atero_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 echo "These are the atero exports: ${atero_exports}"
 for export_dir in ${atero_exports}
 do

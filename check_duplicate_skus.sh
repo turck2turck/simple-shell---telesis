@@ -11,7 +11,7 @@ umask 137
 # Purpose: Execute SQL to check for duplicate skus in the database.
 #
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=check_duplicate_skus
 
 if [[ -s ${HOME}/.pwx ]]; then

@@ -11,7 +11,7 @@ set +x
 # Purpose: Execute the loading and updating of the Atero database.
 #
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=atero_driver
 
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
@@ -20,25 +20,25 @@ echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 ###########################################################################################
 
 # Execute incremental export
-/home/ubuntu/scripts/data-team/incremental-export.sh
+${HOME}/scripts/data-team/incremental-export.sh
 
 # Remove zero byte files
-cd /home/ubuntu/export/bap; find . -type f -size 0M -name products.csv -exec dirname {} \; | xargs rm -rf
+cd ${HOME}/export/bap; find . -type f -size 0M -name products.csv -exec dirname {} \; | xargs rm -rf
 
 # Execute ingestion script DEMO
-. /home/ubuntu/scripts/data-team/ingestion.sh DEMO
+. ${HOME}/scripts/data-team/ingestion.sh DEMO
 
 # Execute ingestion script PRD
-. /home/ubuntu/scripts/data-team/ingestion.sh PRD
+. ${HOME}/scripts/data-team/ingestion.sh PRD
 
 # Execute QA script
-. /home/ubuntu/scripts/data-team/qa.sh PRD
+. ${HOME}/scripts/data-team/qa.sh PRD
 
 # Execute s3 sync script
-. /home/ubuntu/scripts/data-team/sync-export.sh PRD
+. ${HOME}/scripts/data-team/sync-export.sh PRD
 
 # Execute archive export script
-. /home/ubuntu/scripts/data-team/arc_products_file.sh
+. ${HOME}/scripts/data-team/arc_products_file.sh
 
 exit 0
 

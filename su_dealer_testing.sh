@@ -12,7 +12,7 @@ umask 137
 #
 ###########################################################################################
 export DEALER=$1
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=su_dealer_testing
 
 if [[ -s ${HOME}/.pwx ]]; then

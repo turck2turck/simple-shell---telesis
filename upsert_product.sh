@@ -11,7 +11,7 @@ umask 137
 # Purpose: Execute passed in SQL
 # 
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=upsert_product
 
 

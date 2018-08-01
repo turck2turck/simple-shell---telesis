@@ -12,10 +12,10 @@ umask 137
 #
 # Usage:   Called from cron.
 ###########################################################################################
-source /home/ubuntu/config/init.cfg
+source ${HOME}/config/init.cfg
 export PGM_NAME=arc_products_file
 
-PIDFILE=/home/ubuntu/pids/export.pid
+PIDFILE=${HOME}/pids/export.pid
 if [ -f $PIDFILE ]
 then
   PID=$(cat $PIDFILE)
@@ -57,7 +57,7 @@ fi
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${LOGDIR}/${PGM_NAME}.out
 echo "Executing ${PGM_NAME} on ${DTS} in ${HOST} " > ${ELOGDIR}/${PGM_NAME}.err
 
-atero_exports=$((cd /home/ubuntu/export/bap/${channel}_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
+atero_exports=$((cd ${HOME}/export/bap/${channel}_catalog_epurchasingnetwork_com; find . -type f -name products.csv -exec dirname {} \;) | sed 's/.//')
 
 for export_dir in ${atero_exports}
 do

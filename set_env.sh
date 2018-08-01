@@ -12,7 +12,7 @@ umask 137
 #
 ###########################################################################################
 export RUN_ENV=$1
-export HOME=/home/ubuntu/
+export HOME=${HOME}/
 export CONFIG=${HOME}/config
 
 
