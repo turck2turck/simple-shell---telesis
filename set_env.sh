@@ -40,3 +40,9 @@ if [[ ${RUN_ENV} == DEMO ]]; then
    cat ${CONFIG}/init.cfg
 fi
 
+if [[ ${RUN_ENV} == JTQA ]]; then
+   cp ${CONFIG}/init_jtqa.cfg ${CONFIG}/init.cfg
+   cp ${HOME}/.pwj ${HOME}/.pwx
+   cat ${CONFIG}/init.cfg
+fi
+
