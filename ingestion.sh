@@ -13,6 +13,7 @@ umask 137
 # Usage:   Called from cron.
 ###########################################################################################
 PIDFILE=${HOME}/pids/export.pid
+export PGM_NAME=ingestion
 
 if [ -f $PIDFILE ]
 then
